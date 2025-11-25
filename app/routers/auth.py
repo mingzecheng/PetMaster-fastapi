@@ -50,9 +50,20 @@ async def login(user_credentials: UserLogin, db: Session = Depends(get_db)):
     
     - **username**: 用户名或手机号
     - **password**: 密码
+    - **recaptcha_token**: Google reCAPTCHA v3 token (可选)
     
     返回JWT访问令牌
     """
+    # 导入 reCAPTCHA 验证工具
+    from app.utils.recaptcha import verify_recaptcha
+    
+    # 验证 reCAPTCHA (如果启用)
+    if settings.RECAPTCHA_ENABLED:
+        await verify_recaptcha(
+            token=user_credentials.recaptcha_token or "",
+            action="login"
+        )
+    
     # 验证用户
     user = crud_user.authenticate(
         db, username=user_credentials.username, password=user_credentials.password

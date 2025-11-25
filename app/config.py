@@ -38,6 +38,11 @@ class Settings(BaseSettings):
     ALIPAY_ALI_PUBLIC_KEY: str  # 支付宝公钥
     ALIPAY_USE_SANDBOX: bool  # 使用沙箱环境
 
+    # Google reCAPTCHA v3 配置
+    RECAPTCHA_SECRET_KEY: str   # reCAPTCHA 密钥
+    RECAPTCHA_ENABLED: bool   # 是否启用 reCAPTCHA
+    RECAPTCHA_THRESHOLD: float   # 验证通过的最低评分
+
     @property
     def database_url(self) -> str:
         """构造数据库连接URL"""

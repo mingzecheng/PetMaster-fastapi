@@ -41,7 +41,6 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -
 def decode_access_token(token: str) -> Optional[dict]:
     """
     解码JWT访问令牌
-    
     Args:
         token: JWT令牌字符串
     

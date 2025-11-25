@@ -38,6 +38,7 @@ class UserLogin(BaseModel):
     """用户登录Schema"""
     username: str = Field(..., description="用户名或手机号")
     password: str = Field(..., description="密码")
+    recaptcha_token: Optional[str] = Field(None, description="reCAPTCHA token")
 
 
 class Token(BaseModel):
