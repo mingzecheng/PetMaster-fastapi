@@ -2,11 +2,12 @@ from typing import List
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 from app.database import get_db
-from app.schemas.user import UserResponse, UserUpdate
+from app.schemas.user import UserResponse, UserUpdate, ChangePassword
 from app.models.user import User
 from app.crud import user as crud_user
 from app.utils.dependencies import get_current_active_user, require_admin, require_staff
 from app.utils.exceptions import NotFoundError, ForbiddenError
+from app.utils.security import verify_password, get_password_hash
 
 router = APIRouter(prefix="/users", tags=["用户管理"])
 
@@ -30,6 +31,26 @@ async def update_user_me(
 
     user = crud_user.update(db, db_obj=current_user, obj_in=user_in)
     return user
+
+
+@router.post("/me/change-password", summary="修改当前用户密码")
+async def change_password(
+        password_data: ChangePassword,
+        db: Session = Depends(get_db),
+        current_user: User = Depends(get_current_active_user)
+):
+    """修改当前用户密码,需要验证原密码"""
+    # 验证原密码
+    if not verify_password(password_data.old_password, current_user.password_hash):
+        raise ForbiddenError("原密码错误")
+    
+    # 更新密码
+    current_user.password_hash = get_password_hash(password_data.new_password)
+    db.add(current_user)
+    db.commit()
+    
+    return {"message": "密码修改成功"}
+
 
 
 @router.get("/", response_model=List[UserResponse], summary="获取用户列表（管理员和员工）")

@@ -18,11 +18,10 @@ class UserCreate(UserBase):
 
 
 class UserUpdate(BaseModel):
-    """用户更新Schema"""
+    """用户更新Schema - 不包含密码字段"""
     username: Optional[str] = Field(None, min_length=3, max_length=50, description="用户名")
     mobile: Optional[str] = Field(None, max_length=20, description="手机号")
     email: Optional[EmailStr] = Field(None, description="邮箱")
-    password: Optional[str] = Field(None, min_length=6, max_length=50, description="密码")
     role: Optional[UserRole] = Field(None, description="用户角色")
 
 
@@ -51,3 +50,10 @@ class TokenData(BaseModel):
     """Token数据Schema"""
     user_id: Optional[int] = None
     username: Optional[str] = None
+
+
+class ChangePassword(BaseModel):
+    """密码修改Schema"""
+    old_password: str = Field(..., description="原密码")
+    new_password: str = Field(..., min_length=6, max_length=50, description="新密码")
+
