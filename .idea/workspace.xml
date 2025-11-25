@@ -1,0 +1,312 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="3578b8bd-4d39-4159-8331-d4b984d33d66" name="更改" comment="">
+      <change afterPath="$PROJECT_DIR$/.env" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/PetMaster.iml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Dockerfile" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/alembic.ini" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/config.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/crud/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/crud/base.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/crud/crud_appointment.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/crud/crud_boarding.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/crud/crud_payment.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/crud/crud_pet.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/crud/crud_product.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/crud/crud_service.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/crud/crud_transaction.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/crud/crud_user.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/database.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/models/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/models/appointment.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/models/boarding.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/models/payment.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/models/pet.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/models/product.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/models/service.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/models/transaction.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/models/user.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/routers/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/routers/appointments.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/routers/auth.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/routers/boarding.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/routers/payments.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/routers/pets.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/routers/products.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/routers/services.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/routers/transactions.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/routers/users.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/schemas/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/schemas/appointment.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/schemas/boarding.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/schemas/payment.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/schemas/pet.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/schemas/product.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/schemas/service.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/schemas/transaction.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/schemas/user.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/utils/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/utils/alipay.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/utils/dependencies.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/utils/exceptions.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/utils/logger.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/utils/security.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/docker-compose.yml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/init_data.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/petmaster.sql" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_main.http" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="FastAPI main" />
+        <option value="FastAPI test_main" />
+        <option value="Python Script" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 5
+}</component>
+  <component name="ProjectId" id="35druAoMjxtCtgweQe3X5EXeiTK" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;HTTP 请求.test_main | 1. 用户注册.executor&quot;: &quot;Run&quot;,
+    &quot;HTTP 请求.test_main | 10. 创建商品（员工）.executor&quot;: &quot;Run&quot;,
+    &quot;HTTP 请求.test_main | 11. 获取商品详情.executor&quot;: &quot;Run&quot;,
+    &quot;HTTP 请求.test_main | 12. 更新商品信息（员工）.executor&quot;: &quot;Run&quot;,
+    &quot;HTTP 请求.test_main | 13. 删除商品（员工）.executor&quot;: &quot;Run&quot;,
+    &quot;HTTP 请求.test_main | 14. 更新商品库存（员工）.executor&quot;: &quot;Run&quot;,
+    &quot;HTTP 请求.test_main | 15. 获取服务列表.executor&quot;: &quot;Run&quot;,
+    &quot;HTTP 请求.test_main | 16. 创建服务（员工）.executor&quot;: &quot;Run&quot;,
+    &quot;HTTP 请求.test_main | 17. 获取服务详情.executor&quot;: &quot;Run&quot;,
+    &quot;HTTP 请求.test_main | 18. 更新服务信息（员工）.executor&quot;: &quot;Run&quot;,
+    &quot;HTTP 请求.test_main | 19. 删除服务（员工）.executor&quot;: &quot;Run&quot;,
+    &quot;HTTP 请求.test_main | 2. 用户登录.executor&quot;: &quot;Run&quot;,
+    &quot;HTTP 请求.test_main | 20. 创建宠物档案.executor&quot;: &quot;Run&quot;,
+    &quot;HTTP 请求.test_main | 21. 获取宠物列表.executor&quot;: &quot;Run&quot;,
+    &quot;HTTP 请求.test_main | 22. 获取宠物详情.executor&quot;: &quot;Run&quot;,
+    &quot;HTTP 请求.test_main | 23. 更新宠物信息.executor&quot;: &quot;Run&quot;,
+    &quot;HTTP 请求.test_main | 24. 删除宠物.executor&quot;: &quot;Run&quot;,
+    &quot;HTTP 请求.test_main | 25. 添加健康记录.executor&quot;: &quot;Run&quot;,
+    &quot;HTTP 请求.test_main | 26. 获取宠物健康记录.executor&quot;: &quot;Run&quot;,
+    &quot;HTTP 请求.test_main | 27. 创建预约.executor&quot;: &quot;Run&quot;,
+    &quot;HTTP 请求.test_main | 28. 获取预约列表.executor&quot;: &quot;Run&quot;,
+    &quot;HTTP 请求.test_main | 29. 获取预约详情.executor&quot;: &quot;Run&quot;,
+    &quot;HTTP 请求.test_main | 3. 获取当前用户信息.executor&quot;: &quot;Run&quot;,
+    &quot;HTTP 请求.test_main | 30. 更新预约信息.executor&quot;: &quot;Run&quot;,
+    &quot;HTTP 请求.test_main | 31. 取消预约.executor&quot;: &quot;Run&quot;,
+    &quot;HTTP 请求.test_main | 32. 创建寄养记录.executor&quot;: &quot;Run&quot;,
+    &quot;HTTP 请求.test_main | 33. 获取寄养列表.executor&quot;: &quot;Run&quot;,
+    &quot;HTTP 请求.test_main | 34. 获取进行中的寄养（员工）.executor&quot;: &quot;Run&quot;,
+    &quot;HTTP 请求.test_main | 35. 获取寄养详情.executor&quot;: &quot;Run&quot;,
+    &quot;HTTP 请求.test_main | 36. 更新寄养信息（员工）.executor&quot;: &quot;Run&quot;,
+    &quot;HTTP 请求.test_main | 37. 删除寄养记录（员工）.executor&quot;: &quot;Run&quot;,
+    &quot;HTTP 请求.test_main | 38. 创建交易记录（员工）.executor&quot;: &quot;Run&quot;,
+    &quot;HTTP 请求.test_main | 39. 获取交易列表.executor&quot;: &quot;Run&quot;,
+    &quot;HTTP 请求.test_main | 4. 更新当前用户信息.executor&quot;: &quot;Run&quot;,
+    &quot;HTTP 请求.test_main | 4. 获取商品列表.executor&quot;: &quot;Run&quot;,
+    &quot;HTTP 请求.test_main | 40. 获取我的交易记录.executor&quot;: &quot;Run&quot;,
+    &quot;HTTP 请求.test_main | 41. 获取我的总积分.executor&quot;: &quot;Run&quot;,
+    &quot;HTTP 请求.test_main | 42. 获取我的总消费.executor&quot;: &quot;Run&quot;,
+    &quot;HTTP 请求.test_main | 43. 获取交易详情.executor&quot;: &quot;Run&quot;,
+    &quot;HTTP 请求.test_main | 44. 测试不存在的服务.executor&quot;: &quot;Run&quot;,
+    &quot;HTTP 请求.test_main | 45. 测试删除不存在的服务.executor&quot;: &quot;Run&quot;,
+    &quot;HTTP 请求.test_main | 46. 测试更新不存在的服务.executor&quot;: &quot;Run&quot;,
+    &quot;HTTP 请求.test_main | 47. 测试获取不存在的商品.executor&quot;: &quot;Run&quot;,
+    &quot;HTTP 请求.test_main | 48. 测试删除不存在的商品.executor&quot;: &quot;Run&quot;,
+    &quot;HTTP 请求.test_main | 49. 测试获取不存在的宠物.executor&quot;: &quot;Run&quot;,
+    &quot;HTTP 请求.test_main | 5. 获取服务列表.executor&quot;: &quot;Run&quot;,
+    &quot;HTTP 请求.test_main | 5. 获取用户列表（管理员）.executor&quot;: &quot;Run&quot;,
+    &quot;HTTP 请求.test_main | 50. 测试获取不存在的预约.executor&quot;: &quot;Run&quot;,
+    &quot;HTTP 请求.test_main | 51. 测试获取不存在的寄养记录.executor&quot;: &quot;Run&quot;,
+    &quot;HTTP 请求.test_main | 52. 测试获取不存在的交易.executor&quot;: &quot;Run&quot;,
+    &quot;HTTP 请求.test_main | 53. 测试获取不存在的用户.executor&quot;: &quot;Run&quot;,
+    &quot;HTTP 请求.test_main | 54. 测试删除不存在的用户.executor&quot;: &quot;Run&quot;,
+    &quot;HTTP 请求.test_main | 57. 创建支付宝支付请求.executor&quot;: &quot;Run&quot;,
+    &quot;HTTP 请求.test_main | 58. 查询支付状态.executor&quot;: &quot;Run&quot;,
+    &quot;HTTP 请求.test_main | 59. 获取支付列表.executor&quot;: &quot;Run&quot;,
+    &quot;HTTP 请求.test_main | 6. 创建宠物档案.executor&quot;: &quot;Run&quot;,
+    &quot;HTTP 请求.test_main | 6. 获取指定用户信息（管理员）.executor&quot;: &quot;Run&quot;,
+    &quot;HTTP 请求.test_main | 61. 支付宝沙箱环境测试 - 创建支付.executor&quot;: &quot;Run&quot;,
+    &quot;HTTP 请求.test_main | 7. 更新指定用户信息（管理员）.executor&quot;: &quot;Run&quot;,
+    &quot;HTTP 请求.test_main | 7. 获取宠物列表.executor&quot;: &quot;Run&quot;,
+    &quot;HTTP 请求.test_main | 8. 创建预约.executor&quot;: &quot;Run&quot;,
+    &quot;HTTP 请求.test_main | 9. 获取商品列表.executor&quot;: &quot;Run&quot;,
+    &quot;HTTP 请求.test_main | 9. 获取我的积分.executor&quot;: &quot;Run&quot;,
+    &quot;HTTP 请求.test_main | 健康检查.executor&quot;: &quot;Run&quot;,
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;Python.init_data.executor&quot;: &quot;Run&quot;,
+    &quot;Python.main.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/Users/mingzechen/PycharmProjects/PetMaster/PetMaster-fastapi&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  },
+  &quot;keyToStringList&quot;: {
+    &quot;DatabaseDriversLRU&quot;: [
+      &quot;mysql&quot;
+    ],
+    &quot;com.intellij.ide.scratch.LRUPopupBuilder$1/SQL 方言&quot;: [
+      &quot;MySQL&quot;
+    ]
+  }
+}</component>
+  <component name="RunDashboard">
+    <option name="configurationStatuses">
+      <map>
+        <entry key="HttpClient.HttpRequestRunConfigurationType">
+          <value>
+            <map>
+              <entry key="test_main | 2. 用户登录" value="STOPPED" />
+              <entry key="test_main | 57. 创建支付宝支付请求" value="STOPPED" />
+              <entry key="test_main | 58. 查询支付状态" value="STOPPED" />
+              <entry key="test_main | 59. 获取支付列表" value="STOPPED" />
+            </map>
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="RunManager" selected="Python.main">
+    <configuration name="test_main | 2. 用户登录" type="HttpClient.HttpRequestRunConfigurationType" factoryName="HTTP Request" temporary="true" nameIsGenerated="true" path="$PROJECT_DIR$/test_main.http" executionIdentifier="2. 用户登录" index="5" runType="运行单个请求">
+      <method v="2" />
+    </configuration>
+    <configuration name="test_main | 57. 创建支付宝支付请求" type="HttpClient.HttpRequestRunConfigurationType" factoryName="HTTP Request" temporary="true" nameIsGenerated="true" path="$PROJECT_DIR$/test_main.http" executionIdentifier="57. 创建支付宝支付请求" index="60" runType="运行单个请求">
+      <method v="2" />
+    </configuration>
+    <configuration name="test_main | 58. 查询支付状态" type="HttpClient.HttpRequestRunConfigurationType" factoryName="HTTP Request" temporary="true" nameIsGenerated="true" path="$PROJECT_DIR$/test_main.http" executionIdentifier="58. 查询支付状态" index="61" runType="运行单个请求">
+      <method v="2" />
+    </configuration>
+    <configuration name="test_main | 59. 获取支付列表" type="HttpClient.HttpRequestRunConfigurationType" factoryName="HTTP Request" temporary="true" nameIsGenerated="true" path="$PROJECT_DIR$/test_main.http" executionIdentifier="59. 获取支付列表" index="62" runType="运行单个请求">
+      <method v="2" />
+    </configuration>
+    <configuration name="main" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="PetMaster" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/main.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="PetMaster" type="Python.FastAPI">
+      <option name="file" value="$PROJECT_DIR$/main.py" />
+      <module name="PetMaster" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="launchJavascriptDebuger" value="false" />
+      <method v="2" />
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Python.main" />
+        <item itemvalue="HTTP 请求.test_main | 58. 查询支付状态" />
+        <item itemvalue="HTTP 请求.test_main | 59. 获取支付列表" />
+        <item itemvalue="HTTP 请求.test_main | 57. 创建支付宝支付请求" />
+        <item itemvalue="HTTP 请求.test_main | 2. 用户登录" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-js-predefined-d6986cc7102b-3aa1da707db6-JavaScript-PY-252.27397.106" />
+        <option value="bundled-python-sdk-4e2b1448bda8-9a97661f3031-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-252.27397.106" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="默认任务">
+      <changelist id="3578b8bd-4d39-4159-8331-d4b984d33d66" name="更改" comment="" />
+      <created>1763451009748</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1763451009748</updated>
+      <workItem from="1763451010771" duration="1657000" />
+      <workItem from="1763453337763" duration="16385000" />
+      <workItem from="1763514810677" duration="2198000" />
+      <workItem from="1763520023500" duration="6498000" />
+      <workItem from="1763555471518" duration="324000" />
+      <workItem from="1763699272190" duration="2294000" />
+      <workItem from="1763826628555" duration="1562000" />
+      <workItem from="1763836012899" duration="601000" />
+      <workItem from="1763868796322" duration="25000" />
+      <workItem from="1763916467231" duration="125000" />
+      <workItem from="1763916601283" duration="24000" />
+      <workItem from="1763916633691" duration="1442000" />
+      <workItem from="1763967984722" duration="7000" />
+      <workItem from="1763968099605" duration="2727000" />
+      <workItem from="1763985998312" duration="1182000" />
+      <workItem from="1763987606301" duration="1646000" />
+      <workItem from="1763991002224" duration="162000" />
+      <workItem from="1763991173132" duration="296000" />
+      <workItem from="1763991483165" duration="3766000" />
+      <workItem from="1764000956786" duration="3039000" />
+      <workItem from="1764038724458" duration="10000" />
+      <workItem from="1764043726940" duration="5724000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="com.intellij.coverage.CoverageDataManagerImpl">
+    <SUITE FILE_PATH="coverage/PetMaster_fastapi$main.coverage" NAME="main 覆盖结果" MODIFIED="1764049395899" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/PetMaster$init_data.coverage" NAME="init_data 覆盖结果" MODIFIED="1763475573331" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/PetMaster$main.coverage" NAME="main 覆盖结果" MODIFIED="1763700655111" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+  </component>
+</project>
