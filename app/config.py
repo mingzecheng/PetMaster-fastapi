@@ -1,6 +1,7 @@
-from pydantic_settings import BaseSettings
-from typing import List
 from functools import lru_cache
+from typing import List
+
+from pydantic_settings import BaseSettings
 
 
 class Settings(BaseSettings):
@@ -38,10 +39,12 @@ class Settings(BaseSettings):
     ALIPAY_ALI_PUBLIC_KEY: str  # 支付宝公钥
     ALIPAY_USE_SANDBOX: bool  # 使用沙箱环境
 
-    # Google reCAPTCHA v3 配置
-    RECAPTCHA_SECRET_KEY: str   # reCAPTCHA 密钥
+    # Google reCAPTCHA 配置
+    RECAPTCHA_VERSION: str  # v2 或 v3
+    RECAPTCHA_V2_SECRET_KEY: str  # reCAPTCHA v2 密钥
+    RECAPTCHA_V3_SECRET_KEY: str  # reCAPTCHA v3 密钥
     RECAPTCHA_ENABLED: bool   # 是否启用 reCAPTCHA
-    RECAPTCHA_THRESHOLD: float   # 验证通过的最低评分
+    RECAPTCHA_V3_THRESHOLD: float  # v3 专用：验证通过的最低评分
 
     @property
     def database_url(self) -> str:

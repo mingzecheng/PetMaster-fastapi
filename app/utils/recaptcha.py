@@ -1,5 +1,6 @@
 """
-Google reCAPTCHA v3 验证工具
+Google reCAPTCHA 验证工具
+支持 v2 和 v3 版本
 """
 import httpx
 
@@ -10,11 +11,11 @@ from app.utils.logger import logger
 
 async def verify_recaptcha(token: str, action: str = "login") -> bool:
     """
-    验证 reCAPTCHA v3 token
+    验证 reCAPTCHA token (支持 v2 和 v3)
     
     Args:
         token: 前端获取的 reCAPTCHA token
-        action: 操作类型，用于验证一致性(如 'login', 'register')
+        action: 操作类型(v3 使用)，用于验证一致性(如 'login', 'register')
     
     Returns:
         验证是否通过
@@ -31,6 +32,18 @@ async def verify_recaptcha(token: str, action: str = "login") -> bool:
     if not token:
         logger.warning("reCAPTCHA token is missing")
         raise ForbiddenError("验证码缺失")
+
+    # 根据版本选择密钥
+    version = settings.RECAPTCHA_VERSION
+    secret_key = (
+        settings.RECAPTCHA_V2_SECRET_KEY
+        if version == "v2"
+        else settings.RECAPTCHA_V3_SECRET_KEY
+    )
+
+    if not secret_key:
+        logger.error(f"reCAPTCHA {version} secret key is not configured")
+        raise ForbiddenError("验证码配置错误")
     
     try:
         # 调用 Google reCAPTCHA API 验证
@@ -38,7 +51,7 @@ async def verify_recaptcha(token: str, action: str = "login") -> bool:
             response = await client.post(
                 "https://www.google.com/recaptcha/api/siteverify",
                 data={
-                    "secret": settings.RECAPTCHA_SECRET_KEY,
+                    "secret": secret_key,
                     "response": token,
                 },
                 timeout=10.0,
@@ -46,34 +59,35 @@ async def verify_recaptcha(token: str, action: str = "login") -> bool:
             
             result = response.json()
             # logger.info(f"reCAPTCHA verification result: {result}")
+
             # 检查验证是否成功
             if not result.get("success"):
                 error_codes = result.get("error-codes", [])
-                logger.warning(f"reCAPTCHA verification failed: {error_codes}")
+                logger.warning(f"reCAPTCHA {version} verification failed: {error_codes}")
                 raise ForbiddenError("验证码验证失败")
-            
-            # 检查评分
-            score = result.get("score", 0)
-            logger.info(f"reCAPTCHA score: {score} for action: {action}")
-            
-            if score < settings.RECAPTCHA_THRESHOLD:
-                logger.warning(f"reCAPTCHA score too low: {score} < {settings.RECAPTCHA_THRESHOLD}")
-                raise ForbiddenError(f"安全验证未通过，评分过低: {score:.2f}")
-            
-            # 检查 action 一致性(可选但推荐)
-            result_action = result.get("action", "")
-            if result_action != action:
-                logger.warning(f"reCAPTCHA action mismatch: expected '{action}', got '{result_action}'")
-                # 注意：某些情况下 action 可能为空，不强制失败
-                # raise ForbiddenError("验证码操作不匹配")
-            
-            logger.debug(f"reCAPTCHA verification passed for action: {action}")
+
+            # v3 特有：检查评分和action
+            if version == "v3":
+                # 检查评分
+                score = result.get("score", 0)
+                logger.info(f"reCAPTCHA v3 score: {score} for action: {action}")
+
+                if score < settings.RECAPTCHA_V3_THRESHOLD:
+                    logger.warning(f"reCAPTCHA v3 score too low: {score} < {settings.RECAPTCHA_V3_THRESHOLD}")
+                    raise ForbiddenError(f"安全验证未通过，评分过低: {score:.2f}")
+
+                # 检查 action 一致性(可选但推荐)
+                result_action = result.get("action", "")
+                if result_action != action:
+                    logger.warning(f"reCAPTCHA v3 action mismatch: expected '{action}', got '{result_action}'")
+                    # 注意：某些情况下 action 可能为空，不强制失败
+
+            logger.info(f"reCAPTCHA {version} verification passed")
             return True
             
     except httpx.HTTPError as e:
         logger.error(f"reCAPTCHA API request failed: {e}")
         # 网络问题时，根据配置决定是否放行
-        # 生产环境建议失败时拒绝，开发环境可以考虑放行
         raise ForbiddenError("验证码服务暂时不可用，请稍后重试")
     except ForbiddenError:
         raise

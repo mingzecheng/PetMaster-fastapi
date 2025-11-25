@@ -1,25 +1,21 @@
+import os
+from contextlib import asynccontextmanager
+
+import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from contextlib import asynccontextmanager
-import uvicorn
-import os
+
 from app.config import settings
 from app.database import init_db
-from app.utils.logger import get_logger
+from app.routers import auth, users, pets, products, services, appointments, boarding, transactions, payments
 from app.utils.exceptions import (
     AppException,
-    ValidationError,
-    NotFoundError,
-    ForbiddenError,
-    ConflictError,
     app_exception_handler,
     http_exception_handler,
-    validation_exception_handler,
-    sqlalchemy_exception_handler,
     general_exception_handler
 )
-from app.routers import auth, users, pets, products, services, appointments, boarding, transactions, payments
+from app.utils.logger import get_logger
 
 logger = get_logger(__name__)
 
@@ -44,12 +40,13 @@ async def lifespan(app: FastAPI):
 
     # CORS配置检查
     logger.info(f"CORS源: {settings.CORS_ORIGINS}")
-
+    # recaptchaV3 检查
+    logger.info(f"reCAPTCHA: {settings.RECAPTCHA_ENABLED}")
+    logger.info(f"RECAPTCHA_VERSION:{settings.RECAPTCHA_VERSION}")
     logger.info(f"{settings.APP_NAME} 启动成功")
     logger.info(f"API文档地址: http://localhost:{settings.PORT}{settings.API_PREFIX}/docs")
 
     yield
-
     # 停止事件
     logger.info(f"{settings.APP_NAME} 正在停止...")
 
