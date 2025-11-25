@@ -2,6 +2,7 @@
 Google reCAPTCHA v3 验证工具
 """
 import httpx
+
 from app.config import settings
 from app.utils.exceptions import ForbiddenError
 from app.utils.logger import logger
@@ -44,7 +45,7 @@ async def verify_recaptcha(token: str, action: str = "login") -> bool:
             )
             
             result = response.json()
-            
+            # logger.info(f"reCAPTCHA verification result: {result}")
             # 检查验证是否成功
             if not result.get("success"):
                 error_codes = result.get("error-codes", [])
