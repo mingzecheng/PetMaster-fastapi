@@ -27,6 +27,7 @@ class Transaction(Base):
 
     # 关系
     user = relationship("User", back_populates="transactions")
+    point_records = relationship("PointRecord", back_populates="transaction")
 
     def __repr__(self):
         return f"<Transaction(id={self.id}, user_id={self.user_id}, type={self.type}, amount={self.amount})>"

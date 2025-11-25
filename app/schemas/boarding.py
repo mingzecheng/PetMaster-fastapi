@@ -12,6 +12,7 @@ class BoardingBase(BaseModel):
     end_date: date = Field(..., description="结束日期")
     daily_rate: Optional[Decimal] = Field(None, ge=0, description="每日费用")
     staff_id: Optional[int] = Field(None, description="负责员工ID")
+    notes: Optional[str] = Field(None, max_length=500, description="备注")
 
 
 class BoardingCreate(BoardingBase):
@@ -26,12 +27,14 @@ class BoardingUpdate(BaseModel):
     daily_rate: Optional[Decimal] = Field(None, ge=0, description="每日费用")
     staff_id: Optional[int] = Field(None, description="负责员工ID")
     status: Optional[BoardingStatus] = Field(None, description="寄养状态")
+    notes: Optional[str] = Field(None, max_length=500, description="备注")
 
 
 class BoardingResponse(BoardingBase):
     """寄养响应Schema"""
     id: int
     status: BoardingStatus
+    total_cost: Optional[Decimal] = Field(None, description="总费用")
     created_at: datetime
     updated_at: datetime
 

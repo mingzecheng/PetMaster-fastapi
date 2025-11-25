@@ -8,7 +8,10 @@ from fastapi.staticfiles import StaticFiles
 
 from app.config import settings
 from app.database import init_db
-from app.routers import auth, users, pets, products, services, appointments, boarding, transactions, payments
+from app.routers import (
+    auth, users, pets, products, services, appointments, boarding, transactions, payments,
+    member_levels, points, member_cards, pet_health_records
+)
 from app.utils.exceptions import (
     AppException,
     app_exception_handler,
@@ -94,6 +97,14 @@ app.include_router(appointments.router, prefix=settings.API_PREFIX)
 app.include_router(boarding.router, prefix=settings.API_PREFIX)
 app.include_router(transactions.router, prefix=settings.API_PREFIX)
 app.include_router(payments.router, prefix=settings.API_PREFIX)
+
+# 会员系统路由
+app.include_router(member_levels.router, prefix=settings.API_PREFIX)
+app.include_router(points.router, prefix=settings.API_PREFIX)
+app.include_router(member_cards.router, prefix=settings.API_PREFIX)
+
+# 宠物健康记录路由
+app.include_router(pet_health_records.router, prefix=settings.API_PREFIX)
 
 if __name__ == "__main__":
     """项目启动入口"""

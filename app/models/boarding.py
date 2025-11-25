@@ -1,4 +1,4 @@
-from sqlalchemy import Column, BigInteger, Date, DECIMAL, Enum, TIMESTAMP, ForeignKey, func
+from sqlalchemy import Column, BigInteger, Date, DECIMAL, Enum, TIMESTAMP, ForeignKey, String, func
 from sqlalchemy.orm import relationship
 from app.database import Base
 import enum
@@ -6,9 +6,10 @@ import enum
 
 class BoardingStatus(str, enum.Enum):
     """寄养状态枚举"""
-    ONGOING = "ongoing"
-    COMPLETED = "completed"
-    CANCELLED = "cancelled"
+    PENDING = "pending"  # 待确认
+    ACTIVE = "active"    # 进行中
+    COMPLETED = "completed"  # 已完成
+    CANCELLED = "cancelled"  # 已取消
 
 
 class Boarding(Base):
@@ -20,9 +21,11 @@ class Boarding(Base):
     start_date = Column(Date, nullable=False, index=True, comment='寄养开始日期')
     end_date = Column(Date, nullable=False, index=True, comment='寄养结束日期')
     daily_rate = Column(DECIMAL(10, 2), comment='每日费用')
+    total_cost = Column(DECIMAL(10, 2), comment='总费用')
     staff_id = Column(BigInteger, ForeignKey('users.id', ondelete='SET NULL'), index=True, comment='负责员工ID')
-    status = Column(Enum(BoardingStatus, native_enum=False), default=BoardingStatus.ONGOING, index=True,
-                    comment='寄养状态')
+    status = Column(Enum(BoardingStatus, native_enum=False, values_callable=lambda x: [e.value for e in x]), 
+                    default=BoardingStatus.PENDING, index=True, comment='寄养状态')
+    notes = Column(String(500), comment='备注')
     created_at = Column(TIMESTAMP, server_default=func.now(), comment='创建时间')
     updated_at = Column(TIMESTAMP, server_default=func.now(), onupdate=func.now(), comment='更新时间')
 

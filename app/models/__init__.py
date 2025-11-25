@@ -7,6 +7,7 @@ from app.models.appointment import Appointment
 from app.models.boarding import Boarding
 from app.models.transaction import Transaction
 from app.models.payment import Payment, PaymentStatus, PaymentMethod
+from app.models.member import MemberLevel, PointRecord, MemberCard, CardRechargeRecord, PointRecordType
 
 __all__ = [
     "User",
@@ -19,5 +20,10 @@ __all__ = [
     "Transaction",
     "Payment",
     "PaymentStatus",
-    "PaymentMethod"
+    "PaymentMethod",
+    "MemberLevel",
+    "PointRecord",
+    "MemberCard",
+    "CardRechargeRecord",
+    "PointRecordType",
 ]

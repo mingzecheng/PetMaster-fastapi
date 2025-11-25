@@ -52,7 +52,19 @@ class PetHealthRecordBase(BaseModel):
 
 class PetHealthRecordCreate(PetHealthRecordBase):
     """健康记录创建Schema"""
-    pet_id: Optional[int] = Field(None, description="宠物ID（从URL路径获取）")
+    pet_id: int = Field(..., description="宠物ID")
+
+
+class HealthRecordCreate(PetHealthRecordCreate):
+    """健康记录创建Schema（兼容别名）"""
+    pass
+
+
+class HealthRecordUpdate(BaseModel):
+    """健康记录更新Schema"""
+    record_date: Optional[date] = Field(None, description="记录日期")
+    description: Optional[str] = Field(None, description="健康描述")
+    veterinarian: Optional[str] = Field(None, max_length=50, description="兽医姓名")
 
 
 class PetHealthRecordResponse(PetHealthRecordBase):
@@ -62,3 +74,8 @@ class PetHealthRecordResponse(PetHealthRecordBase):
     created_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class HealthRecordResponse(PetHealthRecordResponse):
+    """健康记录响应Schema（兼容别名）"""
+    pass

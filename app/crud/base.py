@@ -33,7 +33,11 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
 
     def create(self, db: Session, *, obj_in: CreateSchemaType) -> ModelType:
         """创建对象"""
-        obj_in_data = obj_in.model_dump()
+        # 支持直接传入 dict（如在路由中自行计算 total_cost）
+        if isinstance(obj_in, dict):
+            obj_in_data = obj_in
+        else:
+            obj_in_data = obj_in.model_dump()
         db_obj = self.model(**obj_in_data)
         db.add(db_obj)
         db.commit()
