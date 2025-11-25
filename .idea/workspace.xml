@@ -4,69 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="3578b8bd-4d39-4159-8331-d4b984d33d66" name="更改" comment="">
-      <change afterPath="$PROJECT_DIR$/.env" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/PetMaster.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Dockerfile" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/alembic.ini" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/config.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/crud/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/crud/base.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/crud/crud_appointment.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/crud/crud_boarding.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/crud/crud_payment.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/crud/crud_pet.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/crud/crud_product.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/crud/crud_service.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/crud/crud_transaction.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/crud/crud_user.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/database.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/models/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/models/appointment.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/models/boarding.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/models/payment.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/models/pet.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/models/product.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/models/service.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/models/transaction.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/models/user.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/routers/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/routers/appointments.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/routers/auth.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/routers/boarding.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/routers/payments.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/routers/pets.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/routers/products.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/routers/services.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/routers/transactions.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/routers/users.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/schemas/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/schemas/appointment.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/schemas/boarding.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/schemas/payment.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/schemas/pet.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/schemas/product.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/schemas/service.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/schemas/transaction.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/schemas/user.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/utils/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/utils/alipay.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/utils/dependencies.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/utils/exceptions.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/utils/logger.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/utils/security.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/docker-compose.yml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/init_data.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/petmaster.sql" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/test_main.http" afterDir="false" />
+    <list default="true" id="3578b8bd-4d39-4159-8331-d4b984d33d66" name="更改" comment="基本完成">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/utils/dependencies.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/utils/dependencies.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -83,7 +23,31 @@
     </option>
   </component>
   <component name="Git.Settings">
+    <option name="PUSH_TAGS">
+      <GitPushTagMode>
+        <option name="argument" value="--follow-tags" />
+        <option name="title" value="Current Branch" />
+      </GitPushTagMode>
+    </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
+  "lastFilter": {
+    "state": "OPEN",
+    "assignee": "mingzecheng"
+  }
+}]]></component>
+  <component name="GithubPullRequestsUISettings"><![CDATA[{
+  "selectedUrlAndAccountId": {
+    "url": "https://github.com/mingzecheng/PetMaster-fastapi.git",
+    "accountId": "f7b5b690-6f44-4c99-a17b-428724c8fce3"
+  }
+}]]></component>
+  <component name="MaliciousPackageCheckinHandlerState">
+    <option name="packageCheck" value="true" />
+  </component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="CurrentFile" />
   </component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 5
@@ -297,12 +261,55 @@
       <workItem from="1763991483165" duration="3766000" />
       <workItem from="1764000956786" duration="3039000" />
       <workItem from="1764038724458" duration="10000" />
-      <workItem from="1764043726940" duration="5724000" />
+      <workItem from="1764043726940" duration="8372000" />
     </task>
+    <task id="LOCAL-00001" summary="基本完成">
+      <option name="closed" value="true" />
+      <created>1764061310362</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1764061310362</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="UpdateCopyrightCheckinHandler">
+    <option name="UPDATE_COPYRIGHT" value="true" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State>
+              <option name="FILTERS">
+                <map>
+                  <entry key="branch">
+                    <value>
+                      <list>
+                        <option value="HEAD" />
+                      </list>
+                    </value>
+                  </entry>
+                </map>
+              </option>
+            </State>
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <option name="CHECK_CODE_SMELLS_BEFORE_PROJECT_COMMIT" value="true" />
+    <MESSAGE value="基本完成" />
+    <option name="LAST_COMMIT_MESSAGE" value="基本完成" />
+    <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="true" />
+    <option name="REFORMAT_BEFORE_PROJECT_COMMIT" value="true" />
+    <option name="REARRANGE_BEFORE_PROJECT_COMMIT" value="true" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/PetMaster_fastapi$main.coverage" NAME="main 覆盖结果" MODIFIED="1764049395899" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />

@@ -1,11 +1,13 @@
 from typing import Optional
-from fastapi import Depends, status
+
+from fastapi import Depends
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.orm import Session
+
 from app.database import get_db
 from app.models.user import User, UserRole
-from app.utils.security import decode_access_token
 from app.utils.exceptions import ForbiddenError
+from app.utils.security import decode_access_token
 
 # HTTP Bearer认证
 security = HTTPBearer()
