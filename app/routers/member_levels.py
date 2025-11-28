@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
+from sqlalchemy import desc
 from sqlalchemy.orm import Session
 from typing import List
 from app.database import get_db
@@ -78,6 +79,7 @@ async def update_member_level(
     """
     更新会员等级信息
     - 仅管理员可操作
+    - 修改min_points后会自动重新计算所有用户的等级
     """
     db_level = db.query(MemberLevel).filter(MemberLevel.id == level_id).first()
     if not db_level:
@@ -104,12 +106,54 @@ async def update_member_level(
         if existing:
             raise HTTPException(status_code=400, detail=f"等级名称 {update_data['name']} 已被使用")
     
+    # 记录是否修改了min_points
+    min_points_changed = "min_points" in update_data
+    
     for field, value in update_data.items():
         setattr(db_level, field, value)
     
     db.commit()
     db.refresh(db_level)
+    
+    # 如果修改了min_points，重新计算所有用户的等级
+    if min_points_changed:
+        _recalculate_all_user_levels(db)
+    
     return db_level
+
+
+def _recalculate_all_user_levels(db: Session):
+    """重新计算所有用户的会员等级"""
+    
+    # 获取所有激活的等级，按level降序
+    levels = db.query(MemberLevel).filter(
+        MemberLevel.is_active == True
+    ).order_by(desc(MemberLevel.level)).all()
+    
+    if not levels:
+        return
+    
+    # 获取所有会员用户
+    users = db.query(User).filter(User.role == "member").all()
+    
+    updated_count = 0
+    for user in users:
+        # 根据累计积分找到对应等级
+        new_level_id = None
+        for level in levels:
+            if user.total_points >= level.min_points:
+                new_level_id = level.id
+                break
+        
+        # 更新用户等级
+        if user.member_level_id != new_level_id:
+            user.member_level_id = new_level_id
+            db.add(user)
+            updated_count += 1
+    
+    if updated_count > 0:
+        db.commit()
+        logger.info(f"重新计算用户等级完成，更新了 {updated_count} 个用户")
 
 
 @router.delete("/{level_id}", summary="删除会员等级")

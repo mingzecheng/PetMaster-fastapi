@@ -2,7 +2,7 @@ from typing import List
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 from app.database import get_db
-from app.schemas.user import UserResponse, UserUpdate, ChangePassword
+from app.schemas.user import UserResponse, UserCreate, UserUpdate, ChangePassword
 from app.models.user import User
 from app.crud import user as crud_user
 from app.utils.dependencies import get_current_active_user, require_admin, require_staff
@@ -53,16 +53,73 @@ async def change_password(
 
 
 
-@router.get("/", response_model=List[UserResponse], summary="获取用户列表（管理员和员工）")
+@router.get("/", summary="获取用户列表（管理员和员工）")
 async def read_users(
         skip: int = 0,
         limit: int = 100,
+        role: str = None,
+        username: str = None,
         db: Session = Depends(get_db),
         current_user: User = Depends(require_staff)
 ):
-    """获取用户列表（管理员和员工可访问）"""
-    users = crud_user.get_multi(db, skip=skip, limit=limit)
+    """获取用户列表（管理员和员工可访问），包含会员等级和会员卡信息"""
+    from sqlalchemy.orm import joinedload
+    from app.schemas.member import UserWithMember
+    
+    query = db.query(User).options(
+        joinedload(User.member_level),
+        joinedload(User.member_card)
+    )
+    
+    if role:
+        # 按角色过滤
+        query = query.filter(User.role == role)
+    
+    if username:
+        # 按用户名模糊查询
+        query = query.filter(User.username.like(f"%{username}%"))
+    
+    users = query.offset(skip).limit(limit).all()
     return users
+
+
+@router.post("/", response_model=UserResponse, status_code=status.HTTP_201_CREATED, summary="创建用户（管理员）")
+async def create_user(
+        user_in: UserCreate,
+        db: Session = Depends(get_db),
+        current_user: User = Depends(require_admin)
+):
+    """
+    创建新用户（仅管理员）
+    
+    - **username**: 用户名（3-50个字符，唯一）
+    - **password**: 密码（最少6个字符）
+    - **mobile**: 手机号（可选，唯一）
+    - **email**: 邮箱（可选，唯一）
+    - **role**: 角色（admin/staff/member）
+    """
+    from app.utils.exceptions import ConflictError
+    
+    # 检查用户名是否已存在
+    existing_user = crud_user.get_by_username(db, username=user_in.username)
+    if existing_user:
+        raise ConflictError(f"用户名 '{user_in.username}' 已被使用")
+    
+    # 检查手机号是否已存在
+    if user_in.mobile:
+        existing_mobile = crud_user.get_by_mobile(db, mobile=user_in.mobile)
+        if existing_mobile:
+            raise ConflictError(f"手机号 '{user_in.mobile}' 已被使用")
+    
+    # 检查邮箱是否已存在
+    if user_in.email:
+        existing_email = crud_user.get_by_email(db, email=user_in.email)
+        if existing_email:
+            raise ConflictError(f"邮箱 '{user_in.email}' 已被使用")
+    
+    # 创建用户
+    user = crud_user.create(db, obj_in=user_in)
+    return user
 
 
 @router.get("/{user_id}", response_model=UserResponse, summary="获取指定用户信息（管理员）")

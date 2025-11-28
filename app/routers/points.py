@@ -56,6 +56,10 @@ async def adjust_user_points(
     if not user:
         raise HTTPException(status_code=404, detail="用户不存在")
     
+    # 检查用户是否有会员卡
+    if not user.member_card:
+        raise HTTPException(status_code=400, detail="该用户未开通会员卡，无法调整积分")
+    
     # 计算新积分
     new_points = user.points + adjust.points
     if new_points < 0:
