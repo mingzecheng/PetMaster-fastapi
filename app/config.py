@@ -33,11 +33,15 @@ class Settings(BaseSettings):
     # 文件上传配置
     UPLOAD_DIR: str
     MAX_UPLOAD_SIZE: int
+    
     # 支付宝配置
     ALIPAY_APP_ID: str  # 支付宝应用ID
-    ALIPAY_APP_PRIVATE_KEY: str  # 应用私钥
-    ALIPAY_ALI_PUBLIC_KEY: str  # 支付宝公钥
+    ALIPAY_APP_PRIVATE_KEY: str  # 应用私钥字符串
+    ALIPAY_ALI_PUBLIC_KEY: str  # 支付宝公钥字符串
     ALIPAY_USE_SANDBOX: bool  # 使用沙箱环境
+    ALIPAY_NOTIFY_URL: str = ""  # 支付宝异步通知地址
+    ALIPAY_RETURN_URL: str = ""  # 支付完成后的前端跳转地址
+    ALIPAY_AES_KEY: str = ""  # 接口内容加密密钥（AES）
 
     # Google reCAPTCHA 配置
     RECAPTCHA_VERSION: str  # v2 或 v3

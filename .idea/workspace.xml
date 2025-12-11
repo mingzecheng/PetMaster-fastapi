@@ -5,7 +5,16 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="3578b8bd-4d39-4159-8331-d4b984d33d66" name="更改" comment="集成recaptchav3,v2">
+      <change beforePath="$PROJECT_DIR$/.env" beforeDir="false" afterPath="$PROJECT_DIR$/.env" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/PetMaster.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/PetMaster.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/config.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/config.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/crud/crud_payment.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/crud/crud_payment.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/routers/member_cards.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/routers/member_cards.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/routers/payments.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/routers/payments.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/utils/alipay.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/utils/alipay.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -148,7 +157,7 @@
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
     &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
     &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable&quot;,
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   },
   &quot;keyToStringList&quot;: {
@@ -318,7 +327,14 @@
       <workItem from="1764068035722" duration="8832000" />
       <workItem from="1764122467836" duration="11627000" />
       <workItem from="1764402471372" duration="55000" />
-      <workItem from="1764582814425" duration="460000" />
+      <workItem from="1764582814425" duration="6684000" />
+      <workItem from="1764924274623" duration="5326000" />
+      <workItem from="1765002204345" duration="6003000" />
+      <workItem from="1765099190182" duration="1279000" />
+      <workItem from="1765100605243" duration="6000" />
+      <workItem from="1765100629775" duration="969000" />
+      <workItem from="1765101605665" duration="20594000" />
+      <workItem from="1765248572227" duration="27303000" />
     </task>
     <task id="LOCAL-00001" summary="基本完成">
       <option name="closed" value="true" />
@@ -387,7 +403,7 @@
     <option name="REARRANGE_BEFORE_PROJECT_COMMIT" value="true" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/PetMaster_fastapi$main.coverage" NAME="main 覆盖结果" MODIFIED="1764583134895" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/PetMaster_fastapi$main.coverage" NAME="main 覆盖结果" MODIFIED="1765411321736" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/PetMaster$init_data.coverage" NAME="init_data 覆盖结果" MODIFIED="1763475573331" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/PetMaster$main.coverage" NAME="main 覆盖结果" MODIFIED="1763700655111" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>

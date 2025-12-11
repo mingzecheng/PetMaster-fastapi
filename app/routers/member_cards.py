@@ -17,7 +17,6 @@ import string
 
 router = APIRouter(prefix="/member_cards", tags=["会员卡"])
 
-
 def generate_card_number() -> str:
     """生成会员卡号"""
     return "".join(random.choices(string.digits, k=16))
@@ -303,163 +302,67 @@ async def cancel_member_card(
     }
 
 
+from pydantic import BaseModel
+
+
+class CardRechargePaymentRequest(BaseModel):
+    """会员卡充值支付请求"""
+    amount: Decimal
+
+
 @router.post("/{card_id}/payment/create", summary="创建会员卡充值支付(小程序)")
 async def create_card_recharge_payment(
     card_id: int,
-    amount: Decimal,
+    request: CardRechargePaymentRequest,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
     """
     创建会员卡充值支付请求（供小程序用户自助充值）
+
     - 用户只能为自己的会员卡充值
     - 创建支付宝支付请求
-    - 返回支付URL供用户扫码支付
+    - 返回支付URL供用户扫码或跳转支付
+    - 支付成功后通过统一回调自动更新余额
     """
-    from app.utils.alipay import get_alipay_client
-    from app.models.payment import Payment, PaymentStatus, PaymentMethod
-    from datetime import datetime
-    import uuid
-    
+    from app.services.payment_service import PaymentService
+
+    amount = request.amount
+
     # 查询会员卡
     card = db.query(MemberCard).filter(MemberCard.id == card_id).first()
     if not card:
         raise HTTPException(status_code=404, detail="会员卡不存在")
-    
+
     # 权限检查：用户只能为自己的卡充值
     if current_user.role == "member" and card.user_id != current_user.id:
         raise HTTPException(status_code=403, detail="无权为此会员卡充值")
-    
+
     if card.status != "active":
         raise HTTPException(status_code=400, detail="会员卡状态异常，无法充值")
-    
-    # 生成商户订单号
-    out_trade_no = f"CARD_{card_id}_{datetime.now().strftime('%Y%m%d%H%M%S')}_{uuid.uuid4().hex[:8]}"
-    
-    # 创建支付记录
-    payment = Payment(
+
+    # 使用统一支付服务创建支付
+    result = PaymentService.create_alipay_payment(
+        db=db,
         user_id=current_user.id,
-        out_trade_no=out_trade_no,
         amount=amount,
-        status=PaymentStatus.PENDING,
-        method=PaymentMethod.ALIPAY,
         subject=f"会员卡充值 - {card.card_number}",
         description=f"为会员卡{card.card_number}充值{amount}元",
         related_id=card_id,
         related_type="member_card_recharge"
     )
-    db.add(payment)
-    db.commit()
-    db.refresh(payment)
-    
-    # 调用支付宝API创建支付
-    alipay_client = get_alipay_client()
-    
-    if not alipay_client.client_initialized:
-        raise HTTPException(status_code=500, detail="支付服务暂不可用")
-    
-    # 构建支付请求
-    result = alipay_client.create_payment(
-        out_trade_no=out_trade_no,
-        total_amount=str(amount),
-        subject=f"会员卡充值",
-        description=f"充值金额: ¥{amount}",
-        return_url=f"http://localhost:3000/member/payment/return",
-        notify_url=f"http://localhost:8001/api/v1/member_cards/{card_id}/payment/notify"
-    )
-    
-    if result:
-        payment.response_data = str(result)
-        db.add(payment)
-        db.commit()
-        
-        return {
-            "payment_id": payment.id,
-            "out_trade_no": out_trade_no,
-            "pay_url": result.get("pay_url", ""),
-            "amount": str(amount),
-            "message": "支付请求已创建，请扫码支付"
-        }
-    else:
-        raise HTTPException(status_code=500, detail="创建支付请求失败")
 
+    if not result.success:
+        raise HTTPException(status_code=500, detail=result.error or "创建支付请求失败")
 
-@router.post("/{card_id}/payment/notify", summary="会员卡充值支付回调")
-async def card_recharge_payment_notify(
-    card_id: int,
-    data: dict,
-    db: Session = Depends(get_db)
-):
-    """
-    处理会员卡充值支付的异步通知
-    - 验证支付宝通知
-    - 更新会员卡余额
-    - 创建充值记录
-    """
-    from app.utils.alipay import get_alipay_client
-    from app.models.payment import Payment, PaymentStatus
-    from datetime import datetime
-    
-    try:
-        # 验证通知
-        alipay_client = get_alipay_client()
-        if not alipay_client.verify_notify(data):
-            return {"code": "FAIL", "message": "验证失败"}
-        
-        # 获取支付记录
-        out_trade_no = data.get("out_trade_no")
-        payment = db.query(Payment).filter(Payment.out_trade_no == out_trade_no).first()
-        
-        if not payment:
-            return {"code": "FAIL", "message": "支付记录不存在"}
-        
-        # 检查是否已处理
-        if payment.status == PaymentStatus.PAID:
-            return {"code": "SUCCESS", "message": "已处理"}
-        
-        # 获取会员卡
-        card = db.query(MemberCard).filter(MemberCard.id == card_id).first()
-        if not card:
-            return {"code": "FAIL", "message": "会员卡不存在"}
-        
-        # 更新支付状态
-        trade_status = data.get("trade_status")
-        if trade_status == "TRADE_SUCCESS":
-            payment.status = PaymentStatus.PAID
-            payment.trade_no = data.get("trade_no")
-            payment.notify_data = str(data)
-            payment.paid_at = datetime.now()
-            
-            # 记录充值前余额
-            balance_before = card.balance
-            balance_after = balance_before + payment.amount
-            
-            # 更新会员卡余额
-            card.balance = balance_after
-            card.total_recharge += payment.amount
-            
-            # 创建充值记录
-            recharge_record = CardRechargeRecord(
-                member_card_id=card_id,
-                amount=payment.amount,
-                balance_before=balance_before,
-                balance_after=balance_after,
-                payment_method="alipay",
-                transaction_no=data.get("trade_no"),
-                operator_id=None,  # 用户自助充值
-                remark="支付宝在线充值"
-            )
-            db.add(recharge_record)
-            
-            db.add(payment)
-            db.add(card)
-            db.commit()
-            
-            return {"code": "SUCCESS", "message": "充值成功"}
-        
-        return {"code": "SUCCESS", "message": "处理完成"}
-    except Exception as e:
-        return {"code": "FAIL", "message": str(e)}
+    return {
+        "payment_id": result.payment_id,
+        "out_trade_no": result.out_trade_no,
+        "pay_url": result.pay_url or "",
+        "qr_code": result.qr_code or "",  # 添加二维码字段
+        "amount": str(amount),
+        "message": result.message or "支付请求已创建"
+    }
 
 
 @router.get("/{card_id}/payment/{out_trade_no}/status", summary="查询充值支付状态")
@@ -471,64 +374,33 @@ async def query_card_recharge_payment_status(
 ):
     """
     查询会员卡充值支付状态
+
     - 用户只能查询自己的支付
+    - 自动同步支付宝最新状态
+    - 支付成功后自动更新会员卡余额
     """
-    from app.models.payment import Payment, PaymentStatus
-    from app.utils.alipay import get_alipay_client
-    from datetime import datetime
-    
+    from app.services.payment_service import PaymentService
+
     # 查询会员卡
     card = db.query(MemberCard).filter(MemberCard.id == card_id).first()
     if not card:
         raise HTTPException(status_code=404, detail="会员卡不存在")
-    
+
     # 权限检查
     if current_user.role == "member" and card.user_id != current_user.id:
         raise HTTPException(status_code=403, detail="无权查看此支付记录")
-    
-    # 查询支付记录
-    payment = db.query(Payment).filter(Payment.out_trade_no == out_trade_no).first()
+
+    # 使用服务层查询（自动同步状态和处理充值）
+    payment = PaymentService.query_payment_status(db, out_trade_no, sync_from_alipay=True)
+
     if not payment:
         raise HTTPException(status_code=404, detail="支付记录不存在")
-    
-    # 如果是待支付状态，从支付宝查询最新状态
-    if payment.status == PaymentStatus.PENDING:
-        alipay_client = get_alipay_client()
-        if alipay_client.client_initialized:
-            result = alipay_client.query_payment(out_trade_no=out_trade_no)
-            
-            if result and result.get("trade_status") == "TRADE_SUCCESS":
-                # 更新支付状态
-                payment.status = PaymentStatus.PAID
-                payment.trade_no = result.get("trade_no")
-                payment.paid_at = datetime.now()
-                
-                # 更新会员卡余额（如果还未更新）
-                balance_before = card.balance
-                card.balance += payment.amount
-                card.total_recharge += payment.amount
-                
-                # 创建充值记录
-                recharge_record = CardRechargeRecord(
-                    member_card_id=card_id,
-                    amount=payment.amount,
-                    balance_before=balance_before,
-                    balance_after=card.balance,
-                    payment_method="alipay",
-                    transaction_no=result.get("trade_no"),
-                    operator_id=None,
-                    remark="支付宝在线充值"
-                )
-                db.add(recharge_record)
-                
-                db.add(payment)
-                db.add(card)
-                db.commit()
-    
+
     return {
         "out_trade_no": payment.out_trade_no,
-        "status": payment.status,
+        "status": payment.status.value if hasattr(payment.status, 'value') else payment.status,
         "amount": str(payment.amount),
         "created_at": payment.created_at,
         "paid_at": payment.paid_at
     }
+

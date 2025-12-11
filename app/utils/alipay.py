@@ -3,13 +3,20 @@
 
 使用 python-alipay-sdk 3.0.4 实现支付宝沙箱支付功能
 """
+import ssl
 from typing import Optional, Dict, Any
+
 from alipay import AliPay
 
 from app.config import settings
 from app.utils.logger import get_logger
 
 logger = get_logger(__name__)
+
+#沙箱环境禁用 SSL 证书验证（仅开发环境使用）
+if settings.ALIPAY_USE_SANDBOX:
+    ssl._create_default_https_context = ssl._create_unverified_context
+    logger.warning("沙箱环境已禁用 SSL 证书验证，生产环境请勿使用此配置")
 
 
 class AlipayClient:
@@ -18,18 +25,47 @@ class AlipayClient:
     def __init__(self):
         """初始化支付宝客户端"""
         self.app_id = settings.ALIPAY_APP_ID
-        self.app_private_key = settings.ALIPAY_APP_PRIVATE_KEY
-        self.alipay_public_key = settings.ALIPAY_ALI_PUBLIC_KEY
         self.use_sandbox = settings.ALIPAY_USE_SANDBOX
         self.client = None
         self.client_initialized = False
+        
+        # 直接使用配置中的密钥字符串
+        self.app_private_key = settings.ALIPAY_APP_PRIVATE_KEY
+        self.alipay_public_key = settings.ALIPAY_ALI_PUBLIC_KEY
 
         # 尝试创建支付宝客户端
         self._initialize_client()
 
+    def _read_key_file(self, file_path: str) -> str:
+        """
+        从文件读取密钥内容
+
+        Args:
+            file_path: 密钥文件路径
+
+        Returns:
+            密钥内容字符串
+        """
+        if not file_path:
+            logger.warning(f"密钥文件路径为空")
+            return ""
+        
+        try:
+            with open(file_path, 'r', encoding='utf-8') as f:
+                content = f.read().strip()
+                logger.info(f"成功读取密钥文件: {file_path}")
+                return content
+        except FileNotFoundError:
+            logger.error(f"密钥文件不存在: {file_path}")
+            return ""
+        except Exception as e:
+            logger.error(f"读取密钥文件失败: {file_path}, 错误: {str(e)}")
+            return ""
+
+
     def _format_key(self, key_str: str, key_type: str = "private") -> str:
         """
-        将PKCS1格式的RSA密钥转换为PEM格式
+        将RSA密钥转换为PEM格式，自动识别 PKCS1 和 PKCS8 格式
         
         Args:
             key_str: 密钥字符串
@@ -45,12 +81,28 @@ class AlipayClient:
 
         # 如果已经是PEM格式，直接返回
         if key_str.startswith("-----BEGIN"):
+            logger.debug(f"密钥已是PEM格式: {key_type}")
             return key_str
 
-        # 如果是PKCS1或PKCS8格式（没有BEGIN/END），转换为PEM格式
+        # 移除可能存在的空格和换行
+        key_str = key_str.replace(' ', '').replace('\n', '').replace('\r', '')
+
+        # 根据密钥类型和内容设置PEM头尾
         if key_type == "private":
-            header = "-----BEGIN RSA PRIVATE KEY-----"
-            footer = "-----END RSA PRIVATE KEY-----"
+            # 自动检测密钥格式：
+            # PKCS8 格式以 "MIIEvgIBADA" 或 "MIIEvAIBADA" 开头（包含 AlgorithmIdentifier）
+            # PKCS1 格式以 "MIIEo" 或 "MIIEp" 开头（纯RSA私钥）
+            # 关键判断：PKCS8 在 "MIIE" 后面紧跟 "v" 或其他字符再加 "IBADA"
+            if "IBADA" in key_str[:15]:
+                # PKCS8 格式（包含 AlgorithmIdentifier 的标识）
+                header = "-----BEGIN PRIVATE KEY-----"
+                footer = "-----END PRIVATE KEY-----"
+                logger.info("检测到 PKCS8 格式私钥（包含 AlgorithmIdentifier）")
+            else:
+                # PKCS1 格式（纯 RSA 私钥）
+                header = "-----BEGIN RSA PRIVATE KEY-----"
+                footer = "-----END RSA PRIVATE KEY-----"
+                logger.info("检测到 PKCS1 格式私钥")
         else:
             header = "-----BEGIN PUBLIC KEY-----"
             footer = "-----END PUBLIC KEY-----"
@@ -61,17 +113,27 @@ class AlipayClient:
             key_lines.append(key_str[i:i + 64])
 
         formatted_key = f"{header}\n" + "\n".join(key_lines) + f"\n{footer}"
+        logger.debug(f"密钥格式化完成: {key_type}, 长度: {len(key_str)}")
         return formatted_key
 
     def _initialize_client(self):
         """初始化支付宝SDK客户端"""
         try:
+            # 打印原始密钥前20个字符（用于诊断）
+            logger.info(f"[诊断] 原始私钥前20字符: {self.app_private_key[:20] if self.app_private_key else 'None'}...")
+            logger.info(f"[诊断] 原始公钥前20字符: {self.alipay_public_key[:20] if self.alipay_public_key else 'None'}...")
+            
             # 将密钥转换为PEM格式
             app_private_key = self._format_key(self.app_private_key, "private")
             alipay_public_key = self._format_key(self.alipay_public_key, "public")
+            
+            # 打印格式化后的密钥头（前50字符）
+            logger.info(f"[诊断] 格式化后私钥头: {app_private_key[:50]}...")
+            logger.info(f"[诊断] 格式化后公钥头: {alipay_public_key[:50]}...")
 
             self.client = self._create_client_with_keys(app_private_key, alipay_public_key)
             self.client_initialized = True
+            logger.info("[诊断] 支付宝客户端初始化成功")
         except ValueError as e:
             if "RSA key format" in str(e):
                 logger.warning(f"支付宝RSA密钥格式错误: {str(e)}")
@@ -136,6 +198,13 @@ class AlipayClient:
                 logger.error("支付宝客户端未初始化，请检查支付宝密钥配置")
                 return None
 
+            # 记录请求参数用于调试
+            logger.info(f"[签名调试] out_trade_no: {out_trade_no}")
+            logger.info(f"[签名调试] total_amount: {total_amount}")
+            logger.info(f"[签名调试] subject: {subject}")
+            logger.info(f"[签名调试] return_url: {return_url}")
+            logger.info(f"[签名调试] notify_url: {notify_url}")
+
             # 生成支付请求字符串
             order_string = self.client.api_alipay_trade_page_pay(
                 out_trade_no=out_trade_no,
@@ -145,6 +214,16 @@ class AlipayClient:
                 return_url=return_url,
                 notify_url=notify_url
             )
+
+            # 输出生成的请求字符串（用于调试签名问题）
+            logger.info(f"[签名调试] 生成的 order_string 长度: {len(order_string)}")
+            # 解析并打印关键参数
+            import urllib.parse
+            params = dict(urllib.parse.parse_qsl(order_string))
+            logger.info(f"[签名调试] app_id: {params.get('app_id')}")
+            logger.info(f"[签名调试] sign_type: {params.get('sign_type')}")
+            logger.info(f"[签名调试] timestamp: {params.get('timestamp')}")
+            logger.info(f"[签名调试] sign 前50字符: {params.get('sign', '')[:50]}...")
 
             # 构建完整的支付URL
             if self.use_sandbox:
@@ -163,6 +242,65 @@ class AlipayClient:
             }
         except Exception as e:
             logger.error(f"创建支付请求异常: {str(e)}")
+            import traceback
+            logger.error(f"异常堆栈: {traceback.format_exc()}")
+            return None
+
+    def create_qrcode_payment(
+            self,
+            out_trade_no: str,
+            total_amount: str,
+            subject: str,
+            description: str = "",
+            notify_url: str = ""
+    ) -> Optional[Dict[str, Any]]:
+        """
+        创建扫码支付（生成支付二维码）
+        
+        Args:
+            out_trade_no: 商户订单号
+            total_amount: 金额（单位：元）
+            subject: 商品标题
+            description: 商品描述
+            notify_url: 异步通知URL
+            
+        Returns:
+            包含二维码链接的结果
+        """
+        try:
+            if not self.client_initialized or self.client is None:
+                logger.error("支付宝客户端未初始化，请检查支付宝密钥配置")
+                return None
+
+            # 调用预下单接口生成二维码
+            response = self.client.api_alipay_trade_precreate(
+                out_trade_no=out_trade_no,
+                total_amount=total_amount,
+                subject=subject,
+                body=description,
+                notify_url=notify_url
+            )
+
+            if response and response.get("code") == "10000":
+                qr_code = response.get("qr_code", "")
+                logger.info(f"二维码支付创建成功: {out_trade_no}, 二维码: {qr_code[:50]}...")
+                return {
+                    "qr_code": qr_code,
+                    "out_trade_no": out_trade_no,
+                    "code": "10000",
+                    "msg": "success"
+                }
+            else:
+                error_msg = response.get("sub_msg", "") if response else "未知错误"
+                logger.error(f"二维码支付创建失败: {out_trade_no}, 错误: {error_msg}")
+                return {
+                    "code": response.get("code", "40004") if response else "40004",
+                    "msg": error_msg,
+                    "sub_code": response.get("sub_code", "") if response else "",
+                    "sub_msg": error_msg
+                }
+        except Exception as e:
+            logger.error(f"创建二维码支付异常: {str(e)}")
             return None
 
     def query_payment(self, out_trade_no: str) -> Optional[Dict[str, Any]]:

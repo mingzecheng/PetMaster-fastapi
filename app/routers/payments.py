@@ -1,17 +1,19 @@
+import uuid
+from datetime import datetime
 from typing import List
+
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
-from datetime import datetime
-from app.database import get_db
-from app.schemas.payment import PaymentCreate, PaymentUpdate, PaymentResponse, PaymentRequestResponse
-from app.models.user import User
-from app.models.payment import PaymentStatus, PaymentMethod, Payment
+
 from app.crud import payment as crud_payment
-from app.utils.dependencies import get_current_active_user, require_staff
-from app.utils.alipay import get_alipay_client
-from app.utils.logger import get_logger
+from app.database import get_db
+from app.models.payment import PaymentStatus, PaymentMethod, Payment
+from app.models.user import User
+from app.schemas.payment import PaymentCreate, PaymentResponse, PaymentRequestResponse
+from app.services.payment_service import PaymentService
+from app.utils.dependencies import get_current_active_user
 from app.utils.exceptions import NotFoundError, ForbiddenError, AppException
-import uuid
+from app.utils.logger import get_logger
 
 logger = get_logger(__name__)
 
@@ -27,85 +29,39 @@ async def create_alipay_payment(
 ):
     """
     创建支付宝支付请求
-    
+
     - **amount**: 支付金额（单位：元）
     - **subject**: 商品标题
     - **description**: 商品描述（可选）
     - **related_id**: 关联ID（预约ID、商品ID等）
     - **related_type**: 关联类型（appointment、product等）
     """
-    # 生成商户订单号
-    out_trade_no = f"PET_{current_user.id}_{datetime.now().strftime('%Y%m%d%H%M%S')}_{uuid.uuid4().hex[:8]}"
+    logger.info(f"创建支付请求: user_id={current_user.id}, amount={payment_in.amount}")
 
-    logger.info(f"开始创建支付宝支付请求: 用户ID={current_user.id}, 订单号={out_trade_no}")
-
-    # 创建支付记录
-    db_payment = Payment(
+    # 使用统一支付服务创建支付
+    result = PaymentService.create_alipay_payment(
+        db=db,
         user_id=current_user.id,
-        out_trade_no=out_trade_no,
         amount=payment_in.amount,
-        status=PaymentStatus.PENDING,
-        method=PaymentMethod.ALIPAY,
         subject=payment_in.subject,
         description=payment_in.description,
         related_id=payment_in.related_id,
         related_type=payment_in.related_type
     )
-    db.add(db_payment)
-    db.commit()
-    db.refresh(db_payment)
 
-    logger.info(f"支付记录创建成功: ID={db_payment.id}")
+    if not result.success:
+        raise AppException(result.error or "创建支付请求失败", 500)
 
-    # 调用支付宝API创建支付
-    alipay_client = get_alipay_client()
-
-    # 检查支付宝客户端是否初始化成功
-    if not alipay_client.client_initialized:
-        logger.warning(f"支付宝客户端未正常初始化，使用模拟支付模式")
-        # 测试环境下，使用模拟支付信息返回
-        return PaymentRequestResponse(
-            payment_id=db_payment.id,
-            out_trade_no=out_trade_no,
-            amount=payment_in.amount,
-            subject=payment_in.subject,
-            qr_code="",
-            pay_url=f"https://openapi.alipay.com/gateway.do?test_request={out_trade_no}",
-            status="pending",
-            message="支付请求已生成（模拟模式）"
-        )
-
-    # 构建支付宝支付请求
-    result = alipay_client.create_payment(
-        out_trade_no=out_trade_no,
-        total_amount=str(payment_in.amount),
+    return PaymentRequestResponse(
+        payment_id=result.payment_id,
+        out_trade_no=result.out_trade_no,
+        amount=str(payment_in.amount),
         subject=payment_in.subject,
-        description=payment_in.description or "",
-        return_url=f"http://localhost:3000/payment/return/{out_trade_no}",
-        notify_url=f"http://localhost:8001/api/v1/payments/alipay/notify"
+        qr_code=result.qr_code or "",
+        pay_url=result.pay_url or "",
+        status="pending",
+        message=result.message or "支付请求已生成"
     )
-
-    if result:
-        # 保存支付宝返回数据
-        db_payment.response_data = str(result)
-        db.add(db_payment)
-        db.commit()
-
-        logger.info(f"支付宝支付请求创建成功: {out_trade_no}")
-
-        return PaymentRequestResponse(
-            payment_id=db_payment.id,
-            out_trade_no=out_trade_no,
-            amount=payment_in.amount,
-            subject=payment_in.subject,
-            qr_code=result.get("qr_code", ""),
-            pay_url=result.get("pay_url", ""),
-            status="pending",
-            message="支付请求已生成，请使用支付宝扫码支付"
-        )
-    else:
-        logger.error(f"支付宝支付请求创建失败: {out_trade_no}")
-        raise AppException("创建支付请求失败，请稍后重试", 500)
 
 
 @router.get("/{out_trade_no}/status", summary="查询支付状态")
@@ -115,39 +71,17 @@ async def query_payment_status(
         current_user: User = Depends(get_current_active_user)
 ):
     """查询支付状态"""
-    logger.info(f"查询支付状态: 订单号={out_trade_no}, 用户ID={current_user.id}")
+    logger.info(f"查询支付状态: out_trade_no={out_trade_no}, user_id={current_user.id}")
 
-    payment = crud_payment.get_by_out_trade_no(db, out_trade_no=out_trade_no)
+    # 使用服务层查询（自动同步支付宝状态）
+    payment = PaymentService.query_payment_status(db, out_trade_no, sync_from_alipay=True)
 
     if not payment:
-        logger.warning(f"支付记录不存在: {out_trade_no}")
         raise NotFoundError("支付记录不存在")
 
-    # 普通会员只能查看自己的支付
+    # 权限检查：普通会员只能查看自己的支付
     if current_user.role == "member" and payment.user_id != current_user.id:
-        logger.warning(f"无权查看支付记录: 用户ID={current_user.id}, 支付ID={payment.id}")
         raise ForbiddenError("无权查看此支付记录")
-
-    # 如果是待支付状态，尝试从支付宝查询最新状态
-    if payment.status == PaymentStatus.PENDING:
-        logger.info(f"从支付宝查询支付状态: {out_trade_no}")
-        alipay_client = get_alipay_client()
-
-        # 检查支付宝客户端是否初始化成功
-        if alipay_client.client_initialized:
-            result = alipay_client.query_payment(out_trade_no=out_trade_no)
-
-            if result and result.get("trade_status") == "TRADE_SUCCESS":
-                # 更新支付状态
-                payment.status = PaymentStatus.PAID
-                payment.trade_no = result.get("trade_no")
-                payment.response_data = str(result)
-                payment.paid_at = datetime.now()
-                db.add(payment)
-                db.commit()
-                logger.info(f"支付已完成: {out_trade_no}")
-        else:
-            logger.warning(f"支付宝客户端未初始化，无法查询支付状态")
 
     return {
         "out_trade_no": payment.out_trade_no,
@@ -155,6 +89,36 @@ async def query_payment_status(
         "amount": str(payment.amount),
         "created_at": payment.created_at,
         "paid_at": payment.paid_at
+    }
+
+
+@router.get("/{out_trade_no}/poll", summary="轮询支付状态")
+async def poll_payment_status(
+        out_trade_no: str,
+        db: Session = Depends(get_db),
+        current_user: User = Depends(get_current_active_user)
+):
+    """
+    轮询支付状态（前端定时调用）
+
+    与 /status 接口类似，但更轻量：
+    - 仅返回状态和是否完成
+    - 建议每 3 秒轮询一次
+    """
+    payment = PaymentService.query_payment_status(db, out_trade_no, sync_from_alipay=True)
+
+    if not payment:
+        raise NotFoundError("支付记录不存在")
+
+    # 权限检查
+    if current_user.role == "member" and payment.user_id != current_user.id:
+        raise ForbiddenError("无权查看此支付记录")
+
+    return {
+        "out_trade_no": payment.out_trade_no,
+        "status": payment.status.value,
+        "is_paid": payment.status == PaymentStatus.PAID,
+        "amount": str(payment.amount)
     }
 
 
@@ -168,7 +132,7 @@ async def read_payments(
         current_user: User = Depends(get_current_active_user)
 ):
     """获取支付列表"""
-    logger.info(f"获取支付列表: 用户ID={current_user.id}, 状态={pay_status}, 用户={user_id}")
+    logger.info(f"获取支付列表: user_id={current_user.id}, status={pay_status}")
 
     if current_user.role == "member":
         # 普通会员只能查看自己的支付
@@ -188,7 +152,7 @@ async def read_payments(
         else:
             payments = crud_payment.get_multi(db, skip=skip, limit=limit)
 
-    logger.info(f"成功获取支付列表: 数量={len(payments)}")
+    logger.info(f"获取支付列表成功: count={len(payments)}")
     return payments
 
 
@@ -198,40 +162,9 @@ async def alipay_notify(
         db: Session = Depends(get_db)
 ):
     """处理支付宝异步通知"""
-    try:
-        logger.info(f"收到支付宝异步通知: {data}")
+    logger.info(f"收到支付宝异步通知")
 
-        # 验证通知
-        alipay_client = get_alipay_client()
-        if not alipay_client.verify_notify(data):
-            logger.warning(f"支付宝异步通知验证失败: {data}")
-            return {"code": "FAIL", "message": "验证失败"}
+    # 使用服务层处理回调
+    result = PaymentService.handle_alipay_callback(db, data)
 
-        # 获取支付记录
-        out_trade_no = data.get("out_trade_no")
-        payment = crud_payment.get_by_out_trade_no(db, out_trade_no=out_trade_no)
-
-        if not payment:
-            logger.warning(f"支付记录不存在: {out_trade_no}")
-            return {"code": "FAIL", "message": "支付记录不存在"}
-
-        # 更新支付状态
-        trade_status = data.get("trade_status")
-        if trade_status == "TRADE_SUCCESS":
-            payment.status = PaymentStatus.PAID
-            payment.trade_no = data.get("trade_no")
-            payment.notify_data = str(data)
-            payment.paid_at = datetime.now()
-            logger.info(f"支付成功: {out_trade_no}")
-        elif trade_status in ["TRADE_CLOSED", "TRADE_FINISHED"]:
-            payment.status = PaymentStatus.CANCELLED
-            payment.notify_data = str(data)
-            logger.info(f"支付取消或完成: {out_trade_no}")
-
-        db.add(payment)
-        db.commit()
-
-        return {"code": "SUCCESS", "message": "处理成功"}
-    except Exception as e:
-        logger.error(f"处理支付宝异步通知异常: {str(e)}")
-        return {"code": "FAIL", "message": str(e)}
+    return result
