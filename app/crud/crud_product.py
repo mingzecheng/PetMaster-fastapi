@@ -26,18 +26,26 @@ class CRUDProduct(CRUDBase[Product, ProductCreate, ProductUpdate]):
             quantity: 库存变化量（正数增加，负数减少）
         
         Returns:
-            更新后的商品对象
+            更新后的商品对象，如果库存不足或商品不存在返回 None
         """
         product = self.get(db, id=product_id)
-        if product:
-            product.stock += quantity
-            if product.stock < 0:
-                product.stock = 0
-            db.add(product)
-            db.commit()
-            db.refresh(product)
+        if not product:
+            return None
+        
+        new_stock = product.stock + quantity
+        
+        # 检查库存是否充足
+        if new_stock < 0:
+            # 库存不足，不允许扣减
+            return None
+        
+        product.stock = new_stock
+        db.add(product)
+        db.commit()
+        db.refresh(product)
         return product
 
 
 # 创建实例
-product = CRUDProduct(Product)
+crud_product = CRUDProduct(Product)
+

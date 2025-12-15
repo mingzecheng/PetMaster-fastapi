@@ -38,6 +38,15 @@ async def create_alipay_payment(
     """
     logger.info(f"创建支付请求: user_id={current_user.id}, amount={payment_in.amount}")
 
+    # 构建完整的notify_url（确保包含API路径）
+    from app.config import settings
+    base_url = settings.ALIPAY_NOTIFY_URL or ""
+    # 如果base_url已包含完整路径则使用，否则拼接
+    if base_url and not base_url.endswith("/notify"):
+        notify_url = f"{base_url.rstrip('/')}/api/payments/alipay/notify"
+    else:
+        notify_url = base_url
+
     # 使用统一支付服务创建支付
     result = PaymentService.create_alipay_payment(
         db=db,
@@ -46,7 +55,8 @@ async def create_alipay_payment(
         subject=payment_in.subject,
         description=payment_in.description,
         related_id=payment_in.related_id,
-        related_type=payment_in.related_type
+        related_type=payment_in.related_type,
+        notify_url=notify_url  # 传递完整的notify_url
     )
 
     if not result.success:

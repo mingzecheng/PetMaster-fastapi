@@ -341,6 +341,15 @@ async def create_card_recharge_payment(
     if card.status != "active":
         raise HTTPException(status_code=400, detail="会员卡状态异常，无法充值")
 
+    # 构建完整的notify_url（确保包含API路径）
+    from app.config import settings
+    base_url = settings.ALIPAY_NOTIFY_URL or ""
+    # 如果base_url已包含完整路径则使用，否则拼接
+    if base_url and not base_url.endswith("/notify"):
+        notify_url = f"{base_url.rstrip('/')}/api/payments/alipay/notify"
+    else:
+        notify_url = base_url
+
     # 使用统一支付服务创建支付
     result = PaymentService.create_alipay_payment(
         db=db,
@@ -349,7 +358,8 @@ async def create_card_recharge_payment(
         subject=f"会员卡充值 - {card.card_number}",
         description=f"为会员卡{card.card_number}充值{amount}元",
         related_id=card_id,
-        related_type="member_card_recharge"
+        related_type="member_card_recharge",
+        notify_url=notify_url  # 传递完整的notify_url
     )
 
     if not result.success:

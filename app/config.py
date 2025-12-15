@@ -34,6 +34,9 @@ class Settings(BaseSettings):
     UPLOAD_DIR: str
     MAX_UPLOAD_SIZE: int
     
+    # 支付配置
+    PAYMENT_MODE: str = "alipay"  # alipay 或 mock（mock模式用于开发测试）
+    
     # 支付宝配置
     ALIPAY_APP_ID: str  # 支付宝应用ID
     ALIPAY_APP_PRIVATE_KEY: str  # 应用私钥字符串

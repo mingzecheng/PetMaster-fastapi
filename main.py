@@ -10,7 +10,7 @@ from app.config import settings
 from app.database import init_db
 from app.routers import (
     auth, users, pets, products, services, appointments, boarding, transactions, payments,
-    member_levels, points, member_cards, pet_health_records
+    member_levels, points, member_cards, pet_health_records, orders
 )
 from app.utils.exceptions import (
     AppException,
@@ -97,6 +97,7 @@ app.include_router(appointments.router, prefix=settings.API_PREFIX)
 app.include_router(boarding.router, prefix=settings.API_PREFIX)
 app.include_router(transactions.router, prefix=settings.API_PREFIX)
 app.include_router(payments.router, prefix=settings.API_PREFIX)
+app.include_router(orders.router, prefix=settings.API_PREFIX)
 
 # 会员系统路由
 app.include_router(member_levels.router, prefix=settings.API_PREFIX)

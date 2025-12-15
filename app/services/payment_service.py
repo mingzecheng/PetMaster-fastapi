@@ -323,9 +323,7 @@ class PaymentService:
             if related_type == "member_card_recharge":
                 return PaymentService._process_member_card_recharge(db, payment)
             elif related_type == "product":
-                # TODO: 商品购买处理
-                logger.info(f"商品购买支付成功: payment_id={payment.id}")
-                return True
+                return PaymentService._process_product_purchase(db, payment)
             else:
                 logger.warning(f"未知的关联类型: {related_type}")
                 return True
@@ -333,6 +331,99 @@ class PaymentService:
         except Exception as e:
             logger.error(f"处理支付成功业务异常: {str(e)}")
             return False
+
+    @staticmethod
+    def _process_product_purchase(db: Session, payment: Payment) -> bool:
+        """
+        处理商品购买
+        
+        Args:
+            db: 数据库会话
+            payment: 支付记录
+            
+        Returns:
+            处理是否成功
+        """
+        try:
+            from app.models.order import Order, OrderStatus
+            from app.crud.crud_product import crud_product
+            import json
+            
+            # 从支付描述中解析商品信息
+            # 格式: {"product_id": 1, "quantity": 2}
+            product_info = None
+            if payment.description:
+                try:
+                    # 尝试从description中解析JSON
+                    product_info = json.loads(payment.description)
+                except:
+                    # 如果不是JSON，尝试从related_id获取商品信息
+                    if payment.related_id:
+                        product_info = {"product_id": payment.related_id, "quantity": 1}
+            
+            if not product_info or 'product_id' not in product_info:
+                logger.error(f"商品购买信息不完整: payment_id={payment.id}")
+                return False
+            
+            product_id = product_info.get('product_id')
+            quantity = product_info.get('quantity', 1)
+            
+            # 检查是否已经创建订单（防止重复处理）
+            existing_order = db.query(Order).filter(Order.payment_id == payment.id).first()
+            if existing_order:
+                logger.info(f"订单已存在，跳过处理: payment_id={payment.id}, order_id={existing_order.id}")
+                return True
+            
+            # 生成订单号
+            from datetime import datetime
+            import uuid
+            timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
+            random_suffix = uuid.uuid4().hex[:8]
+            order_no = f"ORD_{payment.user_id}_{timestamp}_{random_suffix}"
+            
+            # 使用CRUD创建订单（包含库存验证和扣减）
+            from app.schemas.order import OrderItemCreate
+            from app.crud.crud_order import crud_order
+            
+            items = [OrderItemCreate(product_id=product_id, quantity=quantity)]
+            order = crud_order.create_with_items(
+                db=db,
+                order_no=order_no,
+                user_id=payment.user_id,
+                items=items,
+                payment_id=payment.id
+            )
+            
+            if not order:
+                logger.error(f"订单创建失败: payment_id={payment.id}")
+                return False
+            
+            # 扣减库存
+            product = crud_product.update_stock(db, product_id=product_id, quantity=-quantity)
+            if not product:
+                logger.error(f"库存扣减失败: product_id={product_id}")
+                # 回滚订单
+                db.delete(order)
+                db.commit()
+                return False
+            
+            # 更新订单状态为已支付
+            crud_order.update_status(db, order_id=order.id, status=OrderStatus.PAID.value)
+            
+            logger.info(
+                f"商品购买成功: payment_id={payment.id}, order_id={order.id}, "
+                f"product_id={product_id}, quantity={quantity}"
+            )
+            
+            return True
+            
+        except Exception as e:
+            logger.error(f"处理商品购买异常: {str(e)}")
+            import traceback
+            logger.error(f"异常堆栈: {traceback.format_exc()}")
+            db.rollback()
+            return False
+
 
     @staticmethod
     def _process_member_card_recharge(db: Session, payment: Payment) -> bool:

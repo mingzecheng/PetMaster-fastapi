@@ -36,6 +36,7 @@ class User(Base):
     boarding_as_staff = relationship("Boarding", foreign_keys="Boarding.staff_id", back_populates="staff")
     transactions = relationship("Transaction", back_populates="user", cascade="all, delete-orphan")
     payments = relationship("Payment", back_populates="user", cascade="all, delete-orphan")
+    orders = relationship("Order", back_populates="user", cascade="all, delete-orphan")
     
     # 会员系统关系
     member_level = relationship("MemberLevel", back_populates="users")

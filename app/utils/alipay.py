@@ -116,6 +116,36 @@ class AlipayClient:
         logger.debug(f"密钥格式化完成: {key_type}, 长度: {len(key_str)}")
         return formatted_key
 
+    def _convert_pkcs1_to_pkcs8(self, pkcs1_key: str) -> str:
+        """
+        将 PKCS1 格式私钥转换为 PKCS8 格式
+        python-alipay-sdk 推荐使用 PKCS8 格式
+        """
+        try:
+            from cryptography.hazmat.primitives import serialization
+            from cryptography.hazmat.backends import default_backend
+            
+            # 加载 PKCS1 格式的私钥
+            private_key = serialization.load_pem_private_key(
+                pkcs1_key.encode('utf-8'),
+                password=None,
+                backend=default_backend()
+            )
+            
+            # 转换为 PKCS8 格式
+            pkcs8_key = private_key.private_bytes(
+                encoding=serialization.Encoding.PEM,
+                format=serialization.PrivateFormat.PKCS8,
+                encryption_algorithm=serialization.NoEncryption()
+            )
+            
+            result = pkcs8_key.decode('utf-8')
+            logger.info("[密钥转换] 已将 PKCS1 格式转换为 PKCS8 格式")
+            return result
+        except Exception as e:
+            logger.warning(f"[密钥转换] PKCS1转PKCS8失败: {str(e)}, 使用原始密钥")
+            return pkcs1_key
+
     def _initialize_client(self):
         """初始化支付宝SDK客户端"""
         try:
@@ -126,6 +156,10 @@ class AlipayClient:
             # 将密钥转换为PEM格式
             app_private_key = self._format_key(self.app_private_key, "private")
             alipay_public_key = self._format_key(self.alipay_public_key, "public")
+            
+            # 重要：支付宝官方文档明确说明非Java语言使用PKCS1格式
+            # 不要转换为PKCS8！
+            logger.info("[密钥格式] 保持使用 PKCS1 格式（符合支付宝非Java语言要求）")
             
             # 打印格式化后的密钥头（前50字符）
             logger.info(f"[诊断] 格式化后私钥头: {app_private_key[:50]}...")
@@ -159,7 +193,7 @@ class AlipayClient:
         else:
             server_url = "https://openapi.alipay.com/gateway.do"
 
-        # 创建 AliPay 实例
+        # 创建 AliPay 实例（使用标准参数，不添加额外的config）
         alipay = AliPay(
             appid=self.app_id,
             app_notify_url=None,

@@ -27,12 +27,25 @@ class PaymentBase(BaseModel):
 
 class PaymentCreate(BaseModel):
     """支付创建Schema"""
-    amount: str = Field(..., description="支付金额")
+    amount: Decimal = Field(..., description="支付金额")
     subject: str = Field(..., max_length=255, description="商品标题")
     description: Optional[str] = Field(None, description="商品描述")
     method: PaymentMethod = Field(default=PaymentMethod.ALIPAY, description="支付方式")
     related_id: Optional[int] = Field(None, description="关联ID")
     related_type: Optional[str] = Field(None, max_length=32, description="关联类型")
+
+    @field_validator('amount', mode='before')
+    @classmethod
+    def validate_amount(cls, v):
+        """验证并转换金额"""
+        if isinstance(v, (int, float)):
+            return Decimal(str(v))
+        elif isinstance(v, str):
+            return Decimal(v)
+        elif isinstance(v, Decimal):
+            return v
+        else:
+            raise ValueError(f"Invalid amount type: {type(v)}")
 
 
 class PaymentUpdate(BaseModel):

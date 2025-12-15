@@ -1,4 +1,5 @@
 from sqlalchemy import Column, BigInteger, String, DECIMAL, Integer, TIMESTAMP, func
+from sqlalchemy.orm import relationship
 from app.database import Base
 
 
@@ -13,6 +14,9 @@ class Product(Base):
     stock = Column(Integer, default=0, comment='库存数量')
     created_at = Column(TIMESTAMP, server_default=func.now(), comment='创建时间')
     updated_at = Column(TIMESTAMP, server_default=func.now(), onupdate=func.now(), comment='更新时间')
+
+    # 关系
+    order_items = relationship("OrderItem", back_populates="product")
 
     def __repr__(self):
         return f"<Product(id={self.id}, name={self.name}, price={self.price}, stock={self.stock})>"

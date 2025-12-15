@@ -8,6 +8,7 @@ from app.models.boarding import Boarding
 from app.models.transaction import Transaction
 from app.models.payment import Payment, PaymentStatus, PaymentMethod
 from app.models.member import MemberLevel, PointRecord, MemberCard, CardRechargeRecord, PointRecordType
+from app.models.order import Order, OrderItem, OrderStatus
 
 __all__ = [
     "User",
@@ -26,4 +27,7 @@ __all__ = [
     "MemberCard",
     "CardRechargeRecord",
     "PointRecordType",
+    "Order",
+    "OrderItem",
+    "OrderStatus",
 ]
