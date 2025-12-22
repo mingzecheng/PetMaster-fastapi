@@ -26,7 +26,14 @@ class Order(Base):
     order_no = Column(String(50), unique=True, nullable=False, index=True, comment='订单编号')
     user_id = Column(BigInteger, ForeignKey('users.id', ondelete='CASCADE'), nullable=False, index=True, comment='用户ID')
     payment_id = Column(BigInteger, ForeignKey('payments.id', ondelete='SET NULL'), comment='支付记录ID')
-    total_amount = Column(DECIMAL(10, 2), nullable=False, comment='订单总金额')
+    
+    # 金额相关字段
+    original_amount = Column(DECIMAL(10, 2), comment='原始金额（未抵扣前）')
+    points_used = Column(Integer, default=0, comment='使用的积分数量')
+    points_discount = Column(DECIMAL(10, 2), default=0, comment='积分抵扣金额')
+    member_discount = Column(DECIMAL(10, 2), default=0, comment='会员折扣金额')
+    total_amount = Column(DECIMAL(10, 2), nullable=False, comment='订单总金额（实际支付）')
+    
     status = Column(String(20), default='pending', comment='订单状态: pending/paid/cancelled/completed/refunded')
     remark = Column(Text, comment='订单备注')
     created_at = Column(TIMESTAMP, server_default=func.now(), comment='创建时间')

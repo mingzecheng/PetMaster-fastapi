@@ -35,13 +35,13 @@ class Settings(BaseSettings):
     MAX_UPLOAD_SIZE: int
     
     # 支付配置
-    PAYMENT_MODE: str = "alipay"  # alipay 或 mock（mock模式用于开发测试）
+    PAYMENT_MODE: str = "mock"  # mock: 模拟支付（开发测试用）, alipay: 真实支付宝支付
     
-    # 支付宝配置
-    ALIPAY_APP_ID: str  # 支付宝应用ID
-    ALIPAY_APP_PRIVATE_KEY: str  # 应用私钥字符串
-    ALIPAY_ALI_PUBLIC_KEY: str  # 支付宝公钥字符串
-    ALIPAY_USE_SANDBOX: bool  # 使用沙箱环境
+    # 支付宝配置（可选，仅在PAYMENT_MODE=alipay时需要）
+    ALIPAY_APP_ID: str = ""  # 支付宝应用ID
+    ALIPAY_APP_PRIVATE_KEY: str = ""  # 应用私钥字符串
+    ALIPAY_ALI_PUBLIC_KEY: str = ""  # 支付宝公钥字符串
+    ALIPAY_USE_SANDBOX: bool = False  # 使用沙箱环境
     ALIPAY_NOTIFY_URL: str = ""  # 支付宝异步通知地址
     ALIPAY_RETURN_URL: str = ""  # 支付完成后的前端跳转地址
     ALIPAY_AES_KEY: str = ""  # 接口内容加密密钥（AES）

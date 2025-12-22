@@ -97,6 +97,8 @@ async def query_payment_status(
         "out_trade_no": payment.out_trade_no,
         "status": payment.status,
         "amount": str(payment.amount),
+        "subject": payment.subject,  # 新增
+        "description": payment.description,  # 新增
         "created_at": payment.created_at,
         "paid_at": payment.paid_at
     }

@@ -25,11 +25,28 @@ class UserUpdate(BaseModel):
     role: Optional[UserRole] = Field(None, description="用户角色")
 
 
+# 简化的会员等级Schema（避免循环引用）
+class MemberLevelSimple(BaseModel):
+    """简化的会员等级Schema"""
+    id: int
+    name: str
+    level: int
+    discount_rate: float
+    
+    model_config = ConfigDict(from_attributes=True)
+
+
 class UserResponse(UserBase):
     """用户响应Schema"""
     id: int
     created_at: datetime
     updated_at: datetime
+    
+    # 会员系统字段
+    points: int = Field(default=0, description="当前可用积分")
+    total_points: int = Field(default=0, description="累计获得积分")
+    member_level_id: Optional[int] = Field(None, description="会员等级ID")
+    member_level: Optional[MemberLevelSimple] = Field(None, description="会员等级信息")
 
     model_config = ConfigDict(from_attributes=True)
 

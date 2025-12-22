@@ -152,6 +152,42 @@ async def update_boarding(
     return boarding
 
 
+@router.patch("/{boarding_id}/cancel", response_model=BoardingResponse, summary="取消寄养")
+async def cancel_boarding(
+        boarding_id: int,
+        db: Session = Depends(get_db),
+        current_user: User = Depends(get_current_active_user)
+):
+    """
+    取消寄养记录
+    - 普通用户可以取消自己宠物的寄养
+    - 员工和管理员可以取消任何寄养记录
+    - 取消后状态变为 cancelled
+    """
+    boarding = crud_boarding.get(db, id=boarding_id)
+    if not boarding:
+        raise NotFoundError("寄养记录不存在")
+
+    # 权限检查：普通会员只能取消自己宠物的寄养
+    if current_user.role == "member":
+        pet = crud_pet.get(db, id=boarding.pet_id)
+        if not pet or pet.owner_id != current_user.id:
+            raise ForbiddenError("无权取消此寄养记录")
+    
+    # 检查状态，已取消或已完成的不能再取消
+    if boarding.status == BoardingStatus.CANCELLED:
+        raise ValidationError("寄养记录已取消")
+    if boarding.status == BoardingStatus.COMPLETED:
+        raise ValidationError("已完成的寄养记录不能取消")
+
+    # 更新状态为已取消
+    boarding.status = BoardingStatus.CANCELLED
+    db.commit()
+    db.refresh(boarding)
+    
+    return boarding
+
+
 @router.delete("/{boarding_id}", summary="删除寄养记录（员工）")
 async def delete_boarding(
         boarding_id: int,
