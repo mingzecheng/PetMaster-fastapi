@@ -24,7 +24,7 @@ async def register(user_in: UserCreate, db: Session = Depends(get_db)):
     - **username**: 用户名（唯一）
     - **password**: 密码
     - **mobile**: 手机号（可选）
-    - **email**: 邮箱（可选）
+    - **email**: 邮箱（必填）
     """
     # 检查用户名是否已存在
     db_user = crud_user.get_by_username(db, username=user_in.username)
