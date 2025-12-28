@@ -35,16 +35,15 @@ class Settings(BaseSettings):
     MAX_UPLOAD_SIZE: int
     
     # 支付配置
-    PAYMENT_MODE: str = "mock"  # mock: 模拟支付（开发测试用）, alipay: 真实支付宝支付
-    
-    # 支付宝配置（可选，仅在PAYMENT_MODE=alipay时需要）
-    ALIPAY_APP_ID: str = ""  # 支付宝应用ID
-    ALIPAY_APP_PRIVATE_KEY: str = ""  # 应用私钥字符串
-    ALIPAY_ALI_PUBLIC_KEY: str = ""  # 支付宝公钥字符串
-    ALIPAY_USE_SANDBOX: bool = False  # 使用沙箱环境
-    ALIPAY_NOTIFY_URL: str = ""  # 支付宝异步通知地址
-    ALIPAY_RETURN_URL: str = ""  # 支付完成后的前端跳转地址
-    ALIPAY_AES_KEY: str = ""  # 接口内容加密密钥（AES）
+    PAYMENT_MODE: str = "mock"  # mock: 模拟支付（开发测试用）
+
+    # 邮箱服务配置（QQ邮箱SMTP）
+    EMAIL_ENABLED: bool = True  # 是否启用邮箱验证
+    EMAIL_SMTP_HOST: str = "smtp.qq.com"  # SMTP服务器
+    EMAIL_SMTP_PORT: int = 465  # SMTP端口（SSL）
+    EMAIL_SENDER: str = ""  # 发送者邮箱地址（QQ邮箱）
+    EMAIL_PASSWORD: str = ""  # QQ邮箱授权码（非QQ密码）
+    EMAIL_CODE_EXPIRE_MINUTES: int = 5  # 验证码有效期（分钟）
 
     # Google reCAPTCHA 配置
     RECAPTCHA_VERSION: str  # v2 或 v3

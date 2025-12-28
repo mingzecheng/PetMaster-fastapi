@@ -45,13 +45,13 @@ class PointRecord(Base):
     balance = Column(Integer, default=0, comment='变动后积分余额')
     type = Column(String(50), nullable=False, comment='类型: earn/use/adjust')
     reason = Column(String(255), comment='原因描述')
-    transaction_id = Column(BigInteger, ForeignKey('transactions.id', ondelete='SET NULL'), comment='关联交易ID')
+    payment_id = Column(BigInteger, ForeignKey('payments.id', ondelete='SET NULL'), comment='关联支付ID')
     operator_id = Column(BigInteger, ForeignKey('users.id', ondelete='SET NULL'), comment='操作员ID(手动调整时)')
     created_at = Column(TIMESTAMP, server_default=func.now(), comment='创建时间')
 
     # 关系
     user = relationship("User", foreign_keys=[user_id], back_populates="point_records")
-    transaction = relationship("Transaction", back_populates="point_records")
+    payment = relationship("Payment")
     operator = relationship("User", foreign_keys=[operator_id])
 
     def __repr__(self):

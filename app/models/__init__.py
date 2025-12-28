@@ -5,7 +5,6 @@ from app.models.product import Product
 from app.models.service import Service
 from app.models.appointment import Appointment
 from app.models.boarding import Boarding
-from app.models.transaction import Transaction
 from app.models.payment import Payment, PaymentStatus, PaymentMethod
 from app.models.member import MemberLevel, PointRecord, MemberCard, CardRechargeRecord, PointRecordType
 from app.models.order import Order, OrderItem, OrderStatus
@@ -18,7 +17,6 @@ __all__ = [
     "Service",
     "Appointment",
     "Boarding",
-    "Transaction",
     "Payment",
     "PaymentStatus",
     "PaymentMethod",
@@ -31,3 +29,4 @@ __all__ = [
     "OrderItem",
     "OrderStatus",
 ]
+

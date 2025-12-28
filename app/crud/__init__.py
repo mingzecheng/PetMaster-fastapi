@@ -5,7 +5,6 @@ from app.crud.crud_product import crud_product as product
 from app.crud.crud_service import service
 from app.crud.crud_appointment import appointment
 from app.crud.crud_boarding import boarding
-from app.crud.crud_transaction import transaction
 from app.crud.crud_payment import payment
 from app.crud.crud_order import crud_order
 
@@ -17,7 +16,7 @@ __all__ = [
     "service",
     "appointment",
     "boarding",
-    "transaction",
     "payment",
     "crud_order"
 ]
+

@@ -91,43 +91,48 @@ async def adjust_user_points(
     return point_record
 
 
-@router.post("/transactions/{transaction_id}/earn", response_model=PointRecordResponse, summary="消费获得积分")
-async def earn_points_from_transaction(
-    transaction_id: int,
+@router.post("/payments/{payment_id}/earn", response_model=PointRecordResponse, summary="支付获得积分")
+async def earn_points_from_payment(
+    payment_id: int,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
     """
-    根据交易自动计算并发放积分
+    根据支付记录自动计算并发放积分
     - 规则：1元 = 1积分
+    - 仅已支付(paid)状态的支付记录可发放积分
     """
-    from app.models.transaction import Transaction
-    from decimal import Decimal
+    from app.models.payment import Payment, PaymentStatus
     
-    # 查询交易
-    transaction = db.query(Transaction).filter(Transaction.id == transaction_id).first()
-    if not transaction:
-        raise HTTPException(status_code=404, detail="交易不存在")
+    # 查询支付记录
+    payment = db.query(Payment).filter(Payment.id == payment_id).first()
+    if not payment:
+        raise HTTPException(status_code=404, detail="支付记录不存在")
+    
+    # 检查支付状态
+    if payment.status != PaymentStatus.PAID:
+        raise HTTPException(status_code=400, detail="仅已支付状态的记录可发放积分")
     
     # 权限检查
-    if current_user.role != "admin" and current_user.id != transaction.user_id:
+    if current_user.role != "admin" and current_user.id != payment.user_id:
         raise HTTPException(status_code=403, detail="无权操作")
     
-    # 检查是否已经发放积分
+    # 检查是否已经发放积分（使用 payment_id 作为 related_id）
     existing_record = db.query(PointRecord).filter(
-        PointRecord.transaction_id == transaction_id,
-        PointRecord.type == PointRecordType.EARN
+        PointRecord.user_id == payment.user_id,
+        PointRecord.type == PointRecordType.EARN,
+        PointRecord.reason.like(f"%支付#{payment_id}%")
     ).first()
     if existing_record:
-        raise HTTPException(status_code=400, detail="该交易已发放积分")
+        raise HTTPException(status_code=400, detail="该支付已发放积分")
     
     # 计算积分 (1元 = 1积分)
-    points = int(transaction.amount) if transaction.amount else 0
+    points = int(payment.amount) if payment.amount else 0
     if points <= 0:
-        raise HTTPException(status_code=400, detail="交易金额无效")
+        raise HTTPException(status_code=400, detail="支付金额无效")
     
     # 获取用户
-    user = db.query(User).filter(User.id == transaction.user_id).first()
+    user = db.query(User).filter(User.id == payment.user_id).first()
     
     # 更新用户积分
     user.points += points
@@ -135,12 +140,11 @@ async def earn_points_from_transaction(
     
     # 创建积分记录
     point_record = PointRecord(
-        user_id=transaction.user_id,
+        user_id=payment.user_id,
         points=points,
         balance=user.points,
         type=PointRecordType.EARN,
-        reason=f"消费获得积分",
-        transaction_id=transaction_id
+        reason=f"支付#{payment_id}获得积分"
     )
     db.add(point_record)
     

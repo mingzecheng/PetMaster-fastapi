@@ -34,7 +34,6 @@ class User(Base):
     pets = relationship("Pet", back_populates="owner", cascade="all, delete-orphan")
     appointments_as_staff = relationship("Appointment", foreign_keys="Appointment.staff_id", back_populates="staff")
     boarding_as_staff = relationship("Boarding", foreign_keys="Boarding.staff_id", back_populates="staff")
-    transactions = relationship("Transaction", back_populates="user", cascade="all, delete-orphan")
     payments = relationship("Payment", back_populates="user", cascade="all, delete-orphan")
     orders = relationship("Order", back_populates="user", cascade="all, delete-orphan")
     

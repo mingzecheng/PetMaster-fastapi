@@ -5,7 +5,6 @@ from app.schemas.product import ProductCreate, ProductUpdate, ProductResponse
 from app.schemas.service import ServiceCreate, ServiceUpdate, ServiceResponse
 from app.schemas.appointment import AppointmentCreate, AppointmentUpdate, AppointmentResponse
 from app.schemas.boarding import BoardingCreate, BoardingUpdate, BoardingResponse
-from app.schemas.transaction import TransactionCreate, TransactionResponse
 
 __all__ = [
     "UserCreate", "UserUpdate", "UserResponse", "UserLogin", "Token",
@@ -15,5 +14,4 @@ __all__ = [
     "ServiceCreate", "ServiceUpdate", "ServiceResponse",
     "AppointmentCreate", "AppointmentUpdate", "AppointmentResponse",
     "BoardingCreate", "BoardingUpdate", "BoardingResponse",
-    "TransactionCreate", "TransactionResponse"
 ]

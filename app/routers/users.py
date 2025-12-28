@@ -25,12 +25,29 @@ async def update_user_me(
         current_user: User = Depends(get_current_active_user)
 ):
     """更新当前登录用户的信息"""
+    from sqlalchemy.exc import IntegrityError
+    from app.utils.exceptions import ConflictError
+    
     # 普通用户不能修改角色
     if user_in.role and current_user.role != "admin":
         raise ForbiddenError("无权修改用户角色")
 
-    user = crud_user.update(db, db_obj=current_user, obj_in=user_in)
-    return user
+    try:
+        user = crud_user.update(db, db_obj=current_user, obj_in=user_in)
+        return user
+    except IntegrityError as e:
+        db.rollback()
+        # 解析错误消息
+        error_msg = str(e.orig)
+        if "username" in error_msg:
+            raise ConflictError(f"用户名已被使用，请更换其他用户名")
+        elif "email" in error_msg:
+            raise ConflictError(f"邮箱已被使用，请更换其他邮箱")
+        elif "mobile" in error_msg:
+            raise ConflictError(f"手机号已被使用，请更换其他手机号")
+        else:
+            raise ConflictError("数据冲突，请检查输入信息")
+
 
 
 @router.post("/me/change-password", summary="修改当前用户密码")
@@ -143,6 +160,9 @@ async def update_user(
         current_user: User = Depends(require_admin)
 ):
     """更新指定用户信息（仅管理员）"""
+    from sqlalchemy.exc import IntegrityError
+    from app.utils.exceptions import ConflictError
+    
     user = crud_user.get(db, id=user_id)
     if not user:
         raise NotFoundError("用户不存在")
@@ -151,8 +171,22 @@ async def update_user(
     if user_in.role and user_id == current_user.id:
         raise ForbiddenError("禁止修改自己的权限，以防失去管理员权限")
 
-    user = crud_user.update(db, db_obj=user, obj_in=user_in)
-    return user
+    try:
+        user = crud_user.update(db, db_obj=user, obj_in=user_in)
+        return user
+    except IntegrityError as e:
+        db.rollback()
+        # 解析错误消息
+        error_msg = str(e.orig)
+        if "username" in error_msg:
+            raise ConflictError(f"用户名已被使用，请更换其他用户名")
+        elif "email" in error_msg:
+            raise ConflictError(f"邮箱已被使用，请更换其他邮箱")
+        elif "mobile" in error_msg:
+            raise ConflictError(f"手机号已被使用，请更换其他手机号")
+        else:
+            raise ConflictError("数据冲突，请检查输入信息")
+
 
 
 @router.delete("/{user_id}", summary="删除用户（管理员）")
