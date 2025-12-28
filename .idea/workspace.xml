@@ -4,11 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="3578b8bd-4d39-4159-8331-d4b984d33d66" name="更改" comment="集成recaptchav3,v2">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/routers/auth.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/routers/auth.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/部署文档.md" beforeDir="false" />
-    </list>
+    <list default="true" id="3578b8bd-4d39-4159-8331-d4b984d33d66" name="更改" comment="集成recaptchav3,v2" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -391,7 +387,7 @@
       <workItem from="1766715704724" duration="1336000" />
       <workItem from="1766880820114" duration="2024000" />
       <workItem from="1766883731429" duration="159000" />
-      <workItem from="1766883901010" duration="11607000" />
+      <workItem from="1766883901010" duration="12223000" />
     </task>
     <task id="LOCAL-00001" summary="基本完成">
       <option name="closed" value="true" />
