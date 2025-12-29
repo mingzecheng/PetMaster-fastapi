@@ -25,6 +25,8 @@ class PaymentBase(BaseModel):
         return v
 
 
+
+
 class PaymentCreate(BaseModel):
     """支付创建Schema"""
     amount: Decimal = Field(..., description="支付金额")
@@ -33,6 +35,29 @@ class PaymentCreate(BaseModel):
     method: PaymentMethod = Field(default=PaymentMethod.ALIPAY, description="支付方式")
     related_id: Optional[int] = Field(None, description="关联ID")
     related_type: Optional[str] = Field(None, max_length=32, description="关联类型")
+
+    @field_validator('amount', mode='before')
+    @classmethod
+    def validate_amount(cls, v):
+        """验证并转换金额"""
+        if isinstance(v, (int, float)):
+            return Decimal(str(v))
+        elif isinstance(v, str):
+            return Decimal(v)
+        elif isinstance(v, Decimal):
+            return v
+        else:
+            raise ValueError(f"Invalid amount type: {type(v)}")
+
+
+class CombinedPaymentCreate(BaseModel):
+    """组合支付创建Schema"""
+    amount: Decimal = Field(..., description="支付金额")
+    subject: str = Field(..., max_length=255, description="商品标题")
+    related_id: int = Field(..., description="关联ID")
+    related_type: str = Field(..., max_length=32, description="关联类型：appointment/boarding/product")
+    use_card_balance: bool = Field(default=True, description="是否使用会员卡余额")
+    use_points: int = Field(default=0, ge=0, description="使用积分数量（100积分=1元）")
 
     @field_validator('amount', mode='before')
     @classmethod

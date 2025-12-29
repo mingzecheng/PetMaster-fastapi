@@ -35,7 +35,10 @@ COPY . .
 RUN mkdir -p /app/uploads/pets /app/logs
 
 # 暴露端口 (云平台会自动映射)
-EXPOSE 8001
+EXPOSE 8080
 
-# 启动命令 (使用 uvicorn 生产模式)
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8001"]
+# 设置默认端口环境变量
+ENV PORT=8080
+
+# 启动命令 (使用 shell 形式以读取环境变量)
+CMD uvicorn main:app --host 0.0.0.0 --port $PORT

@@ -341,16 +341,7 @@ async def create_card_recharge_payment(
     if card.status != "active":
         raise HTTPException(status_code=400, detail="会员卡状态异常，无法充值")
 
-    # 构建完整的notify_url（确保包含API路径）
-    from app.config import settings
-    base_url = settings.ALIPAY_NOTIFY_URL or ""
-    # 如果base_url已包含完整路径则使用，否则拼接
-    if base_url and not base_url.endswith("/notify"):
-        notify_url = f"{base_url.rstrip('/')}/api/payments/alipay/notify"
-    else:
-        notify_url = base_url
-
-    # 使用统一支付服务创建支付
+    # 使用统一支付服务创建支付（Mock模式）
     result = PaymentService.create_alipay_payment(
         db=db,
         user_id=current_user.id,
@@ -359,7 +350,7 @@ async def create_card_recharge_payment(
         description=f"为会员卡{card.card_number}充值{amount}元",
         related_id=card_id,
         related_type="member_card_recharge",
-        notify_url=notify_url  # 传递完整的notify_url
+        notify_url=""  # Mock模式不需要notify_url
     )
 
     if not result.success:
@@ -369,9 +360,9 @@ async def create_card_recharge_payment(
         "payment_id": result.payment_id,
         "out_trade_no": result.out_trade_no,
         "pay_url": result.pay_url or "",
-        "qr_code": result.qr_code or "",  # 添加二维码字段
+        "qr_code": result.qr_code or "",
         "amount": str(amount),
-        "message": result.message or "支付请求已创建"
+        "message": result.message or "支付请求已创建（Mock模式）"
     }
 
 
@@ -386,7 +377,7 @@ async def query_card_recharge_payment_status(
     查询会员卡充值支付状态
 
     - 用户只能查询自己的支付
-    - 自动同步支付宝最新状态
+    - Mock模式下直接查询数据库
     - 支付成功后自动更新会员卡余额
     """
     from app.services.payment_service import PaymentService
@@ -400,8 +391,8 @@ async def query_card_recharge_payment_status(
     if current_user.role == "member" and card.user_id != current_user.id:
         raise HTTPException(status_code=403, detail="无权查看此支付记录")
 
-    # 使用服务层查询（自动同步状态和处理充值）
-    payment = PaymentService.query_payment_status(db, out_trade_no, sync_from_alipay=True)
+    # 使用服务层查询
+    payment = PaymentService.query_payment_status(db, out_trade_no, sync_from_alipay=False)
 
     if not payment:
         raise HTTPException(status_code=404, detail="支付记录不存在")

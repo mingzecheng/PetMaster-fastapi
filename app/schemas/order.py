@@ -42,13 +42,31 @@ class OrderUpdate(BaseModel):
     remark: Optional[str] = Field(None, max_length=500, description="订单备注")
 
 
+class OrderCancelRequest(BaseModel):
+    """订单取消请求"""
+    reason: Optional[str] = Field(None, max_length=200, description="取消原因")
+
+
+class OrderCancelResponse(BaseModel):
+    """订单取消响应"""
+    success: bool
+    message: str
+    refund_amount: Optional[str] = None
+    points_revoked: int = 0
+
+
 class OrderResponse(BaseModel):
     """订单响应"""
     id: int
     order_no: str
     user_id: int
     payment_id: Optional[int] = None
+    original_amount: Optional[Decimal] = None
+    points_used: Optional[int] = None
+    points_discount: Optional[Decimal] = None
+    member_discount: Optional[Decimal] = None
     total_amount: Decimal
+    paid_amount: Optional[Decimal] = None  # 实际支付金额（从payment.amount获取）
     status: str
     remark: Optional[str] = None
     created_at: datetime
@@ -66,3 +84,4 @@ class OrderWithItems(OrderResponse):
 
     class Config:
         from_attributes = True
+

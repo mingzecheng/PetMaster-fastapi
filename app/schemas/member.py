@@ -58,7 +58,7 @@ class PointRecordBase(BaseModel):
 class PointRecordCreate(PointRecordBase):
     """创建积分记录Schema"""
     user_id: int = Field(..., description="用户ID")
-    transaction_id: Optional[int] = Field(None, description="关联交易ID")
+    payment_id: Optional[int] = Field(None, description="关联支付ID")
 
 
 class PointRecordResponse(PointRecordBase):
@@ -66,8 +66,8 @@ class PointRecordResponse(PointRecordBase):
     id: int
     user_id: int
     balance: int
-    transaction_id: Optional[int]
-    operator_id: Optional[int]
+    payment_id: Optional[int] = None
+    operator_id: Optional[int] = None
     created_at: datetime
 
     model_config = ConfigDict(from_attributes=True)

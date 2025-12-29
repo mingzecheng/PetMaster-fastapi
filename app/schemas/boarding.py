@@ -30,12 +30,20 @@ class BoardingUpdate(BaseModel):
     notes: Optional[str] = Field(None, max_length=500, description="备注")
 
 
+class BoardingCancelRequest(BaseModel):
+    """寄养取消请求Schema"""
+    reason: Optional[str] = Field(None, max_length=200, description="取消原因")
+
+
 class BoardingResponse(BoardingBase):
     """寄养响应Schema"""
     id: int
+    payment_id: Optional[int] = Field(None, description="支付记录ID")
     status: BoardingStatus
     total_cost: Optional[Decimal] = Field(None, description="总费用")
+    cancel_reason: Optional[str] = Field(None, description="取消原因")
     created_at: datetime
     updated_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
+

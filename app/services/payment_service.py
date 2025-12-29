@@ -168,7 +168,7 @@ class PaymentService:
     def query_payment_status(
         db: Session,
         out_trade_no: str,
-        sync_from_alipay: bool = True
+        sync_from_alipay: bool = False
     ) -> Optional[Payment]:
         """
         查询支付状态（Mock模式下仅查询数据库）
@@ -176,7 +176,7 @@ class PaymentService:
         Args:
             db: 数据库会话
             out_trade_no: 商户订单号
-            sync_from_alipay: 是否从支付宝同步最新状态（Mock模式下被忽略）
+            sync_from_alipay: 被忽略（Mock模式不需要同步）
 
         Returns:
             支付记录，不存在返回 None
@@ -188,23 +188,7 @@ class PaymentService:
 
         return payment
 
-    @staticmethod
-    def handle_alipay_callback(
-        db: Session,
-        data: Dict[str, Any]
-    ) -> Dict[str, str]:
-        """
-        处理支付宝异步通知（Mock模式下不使用）
 
-        Args:
-            db: 数据库会话
-            data: 通知数据
-
-        Returns:
-            处理结果
-        """
-        logger.warning("[Mock支付] Mock模式下不支持支付宝回调，请使用Mock支付确认接口")
-        return {"code": "FAIL", "message": "Mock模式不支持支付宝回调"}
 
     @staticmethod
     def _process_payment_success(db: Session, payment: Payment) -> bool:
@@ -214,6 +198,8 @@ class PaymentService:
         根据 related_type 执行不同的业务处理：
         - member_card_recharge: 更新会员卡余额
         - product: 创建订单记录等
+        - appointment: 更新预约状态
+        - boarding: 更新寄养状态
 
         Args:
             db: 数据库会话
@@ -229,12 +215,88 @@ class PaymentService:
                 return PaymentService._process_member_card_recharge(db, payment)
             elif related_type == "product":
                 return PaymentService._process_product_purchase(db, payment)
+            elif related_type == "order":
+                return PaymentService._process_order_payment(db, payment)
+            elif related_type == "appointment":
+                return PaymentService._process_appointment_payment(db, payment)
+            elif related_type == "boarding":
+                return PaymentService._process_boarding_payment(db, payment)
             else:
                 logger.warning(f"未知的关联类型: {related_type}")
                 return True
 
         except Exception as e:
             logger.error(f"处理支付成功业务异常: {str(e)}")
+            return False
+
+    @staticmethod
+    def _process_order_payment(db: Session, payment: Payment) -> bool:
+        """
+        处理订单支付
+        
+        更新订单状态为已支付，并发放消费积分
+        
+        Args:
+            db: 数据库会话
+            payment: 支付记录
+            
+        Returns:
+            处理是否成功
+        """
+        try:
+            from app.models.order import Order, OrderStatus
+            import json
+            
+            # 查询订单
+            order = db.query(Order).filter(Order.id == payment.related_id).first()
+            if not order:
+                logger.error(f"订单不存在: order_id={payment.related_id}")
+                return False
+            
+            # 检查订单状态
+            if order.status == OrderStatus.PAID.value:
+                logger.info(f"订单已支付，跳过处理: order_id={order.id}")
+                return True
+            
+            # 从payment.description中解析积分抵扣信息
+            points_used = 0
+            points_discount = 0
+            
+            if payment.description:
+                try:
+                    # 尝试从description解析（格式如："积分抵扣500分"）
+                    if "积分抵扣" in payment.description:
+                        import re
+                        match = re.search(r'积分抵扣(\d+)分', payment.description)
+                        if match:
+                            points_used = int(match.group(1))
+                            points_discount = points_used / 100  # 100积分=1元
+                            logger.info(f"从description解析积分: points={points_used}, discount={points_discount}")
+                except Exception as e:
+                    logger.warning(f"解析积分信息失败: {str(e)}")
+            
+            # 更新订单状态和积分信息
+            order.status = OrderStatus.PAID.value
+            order.payment_id = payment.id
+            order.paid_at = datetime.now()
+            
+            if points_used > 0:
+                order.points_used = points_used
+                order.points_discount = points_discount
+                logger.info(f"订单积分抵扣: order_id={order.id}, points={points_used}, discount={points_discount}")
+            
+            db.add(order)
+            db.commit()  # 提交订单状态更新
+            
+            # 发放消费积分（实付金额 = 积分）
+            PaymentService._grant_points(db, payment)
+            
+            logger.info(f"订单支付处理成功: order_id={order.id}, payment_id={payment.id}")
+            return True
+            
+        except Exception as e:
+            logger.error(f"处理订单支付异常: {str(e)}")
+            db.rollback()
             return False
 
     @staticmethod
@@ -543,6 +605,449 @@ class PaymentService:
             db.rollback()
             return False
 
+    @staticmethod
+    def _process_appointment_payment(db: Session, payment: Payment) -> bool:
+        """
+        处理预约支付成功
+
+        Args:
+            db: 数据库会话
+            payment: 支付记录
+
+        Returns:
+            处理是否成功
+        """
+        try:
+            from app.models.appointment import Appointment, AppointmentStatus
+            from app.models.member import PointRecord
+            from app.models.user import User
+
+            appointment_id = payment.related_id
+            if not appointment_id:
+                logger.error(f"预约支付缺少 appointment_id: payment_id={payment.id}")
+                return False
+
+            # 获取预约记录
+            appointment = db.query(Appointment).filter(Appointment.id == appointment_id).first()
+            if not appointment:
+                logger.error(f"预约记录不存在: appointment_id={appointment_id}")
+                return False
+
+            # 检查是否已处理
+            if appointment.payment_id == payment.id:
+                logger.info(f"预约支付已处理，跳过: appointment_id={appointment_id}")
+                return True
+
+            # 更新预约状态
+            appointment.payment_id = payment.id
+            appointment.status = AppointmentStatus.CONFIRMED
+            db.add(appointment)
+
+            # 发放消费积分
+            user = db.query(User).filter(User.id == payment.user_id).first()
+            if user:
+                points_to_grant = int(float(payment.amount))
+                if points_to_grant > 0:
+                    user.points += points_to_grant
+                    user.total_points += points_to_grant
+
+                    point_record = PointRecord(
+                        user_id=payment.user_id,
+                        points=points_to_grant,
+                        balance=user.points,
+                        type='earn',
+                        reason=f'预约消费获得积分 (预约ID:{appointment_id})'
+                    )
+                    db.add(user)
+                    db.add(point_record)
+
+                    logger.info(f"预约积分发放: user_id={payment.user_id}, points={points_to_grant}")
+
+                    # 检查会员等级升级
+                    from app.routers.points import _check_and_upgrade_level
+                    _check_and_upgrade_level(user, db)
+
+            db.commit()
+            logger.info(f"预约支付处理成功: appointment_id={appointment_id}, payment_id={payment.id}")
+            return True
+
+        except Exception as e:
+            logger.error(f"处理预约支付异常: {str(e)}")
+            import traceback
+            logger.error(f"异常堆栈: {traceback.format_exc()}")
+            db.rollback()
+            return False
+
+    @staticmethod
+    def _process_boarding_payment(db: Session, payment: Payment) -> bool:
+        """
+        处理寄养支付成功
+
+        Args:
+            db: 数据库会话
+            payment: 支付记录
+
+        Returns:
+            处理是否成功
+        """
+        try:
+            from app.models.boarding import Boarding, BoardingStatus
+            from app.models.member import PointRecord
+            from app.models.user import User
+
+            boarding_id = payment.related_id
+            if not boarding_id:
+                logger.error(f"寄养支付缺少 boarding_id: payment_id={payment.id}")
+                return False
+
+            # 获取寄养记录
+            boarding = db.query(Boarding).filter(Boarding.id == boarding_id).first()
+            if not boarding:
+                logger.error(f"寄养记录不存在: boarding_id={boarding_id}")
+                return False
+
+            # 检查是否已处理
+            if boarding.payment_id == payment.id:
+                logger.info(f"寄养支付已处理，跳过: boarding_id={boarding_id}")
+                return True
+
+            # 更新寄养状态
+            boarding.payment_id = payment.id
+            boarding.status = BoardingStatus.ACTIVE
+            db.add(boarding)
+
+            # 发放消费积分
+            user = db.query(User).filter(User.id == payment.user_id).first()
+            if user:
+                points_to_grant = int(float(payment.amount))
+                if points_to_grant > 0:
+                    user.points += points_to_grant
+                    user.total_points += points_to_grant
+
+                    point_record = PointRecord(
+                        user_id=payment.user_id,
+                        points=points_to_grant,
+                        balance=user.points,
+                        type='earn',
+                        reason=f'寄养消费获得积分 (寄养ID:{boarding_id})'
+                    )
+                    db.add(user)
+                    db.add(point_record)
+
+                    logger.info(f"寄养积分发放: user_id={payment.user_id}, points={points_to_grant}")
+
+                    # 检查会员等级升级
+                    from app.routers.points import _check_and_upgrade_level
+                    _check_and_upgrade_level(user, db)
+
+            db.commit()
+            logger.info(f"寄养支付处理成功: boarding_id={boarding_id}, payment_id={payment.id}")
+            return True
+
+        except Exception as e:
+            logger.error(f"处理寄养支付异常: {str(e)}")
+            import traceback
+            logger.error(f"异常堆栈: {traceback.format_exc()}")
+            db.rollback()
+            return False
+
+    @staticmethod
+    def create_combined_payment(
+        db: Session,
+        user_id: int,
+        amount: Decimal,
+        subject: str,
+        related_id: int,
+        related_type: str,
+        use_card_balance: bool = True,
+        use_points: int = 0
+    ) -> Dict[str, Any]:
+        """
+        创建组合支付（积分+会员卡余额+支付宝）
+        
+        支付优先级：积分 → 会员卡余额 → 支付宝
+        
+        Args:
+            use_card_balance: 是否使用会员卡余额
+            use_points: 使用的积分数量（100积分=1元）
+        
+        Returns:
+            {
+                'points_used': int,  # 使用的积分
+                'points_deduction': float,  # 积分抵扣金额
+                'card_used': float,  # 使用的会员卡余额
+                'alipay_amount': float,  # 需要支付宝支付的金额
+                'pay_url': str,  # 支付URL（如果需要）
+                'out_trade_no': str,  # 支付订单号（如果需要）
+                'payment_id': int,  # 支付ID（如果创建了）
+                'fully_paid': bool  # 是否已全额支付
+            }
+        """
+        from app.models.member import CardConsumptionRecord, PointRecord
+        from app.models.user import User
+        
+        try:
+            remaining_amount = amount
+            points_used = 0
+            points_deduction = Decimal('0.00')
+            card_used = Decimal('0.00')
+            consumption_record = None
+            
+            # 1. 处理积分抵扣
+            if use_points > 0:
+                user = db.query(User).filter(User.id == user_id).first()
+                if user and user.points >= use_points:
+                    # 计算积分抵扣金额（100积分=1元）
+                    points_deduction = Decimal(str(use_points / 100))
+                    
+                    # 积分最多抵扣订单金额的50%
+                    max_deduction = amount * Decimal('0.5')
+                    if points_deduction > max_deduction:
+                        points_deduction = max_deduction
+                        use_points = int(float(points_deduction) * 100)
+                    
+                    # 积分不能超过剩余金额
+                    if points_deduction > remaining_amount:
+                        points_deduction = remaining_amount
+                        use_points = int(float(points_deduction) * 100)
+                    
+                    # 扣除积分
+                    user.points -= use_points
+                    points_used = use_points
+                    remaining_amount -= points_deduction
+                    
+                    # 创建积分记录
+                    point_record = PointRecord(
+                        user_id=user_id,
+                        points=-use_points,
+                        balance=user.points,
+                        type='use',
+                        reason=f'积分抵扣{related_type}消费'
+                    )
+                    db.add(point_record)
+                    db.commit()
+                    
+                    logger.info(f"积分抵扣: user_id={user_id}, points={use_points}, deduction={points_deduction}")
+            
+            # 2. 处理会员卡余额抵扣（如果启用）
+            if use_card_balance and remaining_amount > 0:
+                card = db.query(MemberCard).filter(
+                    MemberCard.user_id == user_id,
+                    MemberCard.status == 'active'
+                ).first()
+                
+                if card and card.balance > 0:
+                    if card.balance >= remaining_amount:
+                        # 余额充足，全额扣除
+                        card_used = remaining_amount
+                        remaining_amount = Decimal('0.00')
+                    else:
+                        # 余额不足，扣除全部余额
+                        card_used = card.balance
+                        remaining_amount -= card.balance
+                
+                    # 扣除会员卡余额
+                    balance_before = card.balance
+                    card.balance -= card_used
+                    card.total_consumption += card_used
+                    
+                    # 创建消费记录
+                    consumption_record = CardConsumptionRecord(
+                        member_card_id=card.id,
+                        amount=card_used,
+                        balance_before=balance_before,
+                        balance_after=card.balance,
+                        related_type=related_type,
+                        related_id=related_id,
+                        remark=f'{related_type}消费'
+                    )
+                    db.add(consumption_record)
+                    db.commit()
+                    
+                    logger.info(f"会员卡余额扣除: user_id={user_id}, amount={card_used}, balance_after={card.balance}")
+            
+            # 3. 如果还有剩余金额，需要支付宝支付
+            alipay_amount = remaining_amount
+            
+            if alipay_amount > 0:
+                # 创建支付订单
+                description_parts = []
+                if points_used > 0:
+                    description_parts.append(f"积分抵扣{points_used}分")
+                if card_used > 0:
+                    description_parts.append(f"会员卡抵扣¥{float(card_used)}")
+                description = "组合支付（" + "、".join(description_parts) + ")" if description_parts else None
+                
+                result = PaymentService.create_alipay_payment(
+                    db=db,
+                    user_id=user_id,
+                    amount=float(alipay_amount),
+                    subject=subject,
+                    description=description,
+                    related_id=related_id,
+                    related_type=related_type,
+                    notify_url=""
+                )
+                
+                # 更新消费记录关联支付ID
+                if consumption_record:
+                    consumption_record.payment_id = result.payment_id
+                    db.commit()
+                
+                return {
+                    'points_used': points_used,
+                    'points_deduction': float(points_deduction),
+                    'card_used': float(card_used),
+                    'alipay_amount': float(alipay_amount),
+                    'pay_url': result.pay_url,
+                    'out_trade_no': result.out_trade_no,
+                    'payment_id': result.payment_id,
+                    'fully_paid': False
+                }
+            else:
+                # 全额抵扣支付,创建已支付的支付记录
+                import uuid
+                from datetime import datetime
+                
+                # 生成订单号
+                out_trade_no = f"FULL_{user_id}_{int(datetime.now().timestamp())}_{uuid.uuid4().hex[:8]}"
+                
+                # 构建描述信息
+                description_parts = []
+                if points_used > 0:
+                    description_parts.append(f"积分抵扣{points_used}分(¥{float(points_deduction):.2f})")
+                if card_used > 0:
+                    description_parts.append(f"会员卡抵扣¥{float(card_used):.2f}")
+                description = "全额抵扣(" + "、".join(description_parts) + ")"
+                
+                # 创建支付记录(金额为订单原始金额,状态为PAID)
+                payment = Payment(
+                    out_trade_no=out_trade_no,
+                    trade_no=out_trade_no,  # 全额抵扣使用相同的订单号
+                    user_id=user_id,
+                    amount=amount,  # 使用订单原始金额,不是0
+                    subject=subject,
+                    description=description,
+                    related_id=related_id,
+                    related_type=related_type,
+                    status=PaymentStatus.PAID,
+                    method=PaymentMethod.CARD,  # 标记为会员卡/积分支付
+                    paid_at=datetime.now()
+                )
+                db.add(payment)
+                db.flush()  # 获取payment_id
+                
+                # 更新消费记录关联支付ID
+                if consumption_record:
+                    consumption_record.payment_id = payment.id
+                
+                # 更新业务状态和发放积分
+                PaymentService._update_related_status_and_grant_points(
+                    db, related_type, related_id, user_id, float(amount),
+                    points_used=points_used,
+                    points_discount=float(points_deduction) if points_deduction else 0
+                )
+                
+                db.commit()
+                db.refresh(payment)
+                
+                logger.info(f"全额抵扣支付记录创建成功: payment_id={payment.id}, out_trade_no={out_trade_no}")
+                
+                return {
+                    'points_used': points_used,
+                    'points_deduction': float(points_deduction),
+                    'card_used': float(card_used),
+                    'alipay_amount': 0,
+                    'pay_url': None,
+                    'out_trade_no': out_trade_no,
+                    'payment_id': payment.id,
+                    'fully_paid': True
+                }
+                
+                
+        except Exception as e:
+            logger.error(f"创建组合支付异常: {str(e)}")
+            import traceback
+            logger.error(f"异常堆栈: {traceback.format_exc()}")
+            db.rollback()
+            raise
+
+    @staticmethod
+    def _update_related_status_and_grant_points(
+        db: Session,
+        related_type: str,
+        related_id: int,
+        user_id: int,
+        amount: float,
+        points_used: int = 0,
+        points_discount: float = 0
+    ):
+        """更新关联业务状态并发放积分"""
+        from app.models.appointment import Appointment, AppointmentStatus
+        from app.models.boarding import Boarding, BoardingStatus
+        from app.models.user import User
+        from app.models.member import PointRecord
+        
+        try:
+            # 更新预约/寄养/订单状态
+            if related_type == 'appointment':
+                appointment = db.query(Appointment).filter(Appointment.id == related_id).first()
+                if appointment:
+                    appointment.status = AppointmentStatus.CONFIRMED
+                    logger.info(f"预约状态更新为CONFIRMED: appointment_id={related_id}")
+            elif related_type == 'boarding':
+                boarding = db.query(Boarding).filter(Boarding.id == related_id).first()
+                if boarding:
+                    boarding.status = BoardingStatus.ACTIVE
+                    logger.info(f"寄养状态更新为ACTIVE: boarding_id={related_id}")
+            
+            elif related_type == 'order':
+                from app.models.order import Order, OrderStatus
+                order = db.query(Order).filter(Order.id == related_id).first()
+                if order:
+                    order.status = OrderStatus.PAID.value
+                    order.paid_at = datetime.now()
+                    
+                    # 更新积分抵扣信息
+                    if points_used > 0:
+                        order.points_used = points_used
+                        order.points_discount = points_discount
+                        logger.info(f"订单积分抵扣(全额): order_id={order.id}, points={points_used}, discount={points_discount}")
+                    
+                    db.add(order)
+                    logger.info(f"订单状态更新为PAID: order_id={related_id}")
+            
+            # 发放积分
+            user = db.query(User).filter(User.id == user_id).first()
+            if user:
+                points = int(amount)
+                if points > 0:
+                    user.points += points
+                    user.total_points += points
+                    
+                    point_record = PointRecord(
+                        user_id=user_id,
+                        points=points,
+                        balance=user.points,
+                        type='earn',
+                        reason=f'会员卡余额支付{related_type}获得积分'
+                    )
+                    db.add(point_record)
+                    logger.info(f"积分发放: user_id={user_id}, points={points}")
+                    
+                    # 检查会员等级升级
+                    from app.routers.points import _check_and_upgrade_level
+                    _check_and_upgrade_level(user, db)
+            
+            db.commit()
+            
+        except Exception as e:
+            logger.error(f"更新状态和发放积分异常: {str(e)}")
+            db.rollback()
+            raise
+
+
 
 # 创建全局服务实例
 payment_service = PaymentService()
+

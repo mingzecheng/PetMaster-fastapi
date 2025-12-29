@@ -76,6 +76,7 @@ class MemberCard(Base):
     # 关系
     user = relationship("User", back_populates="member_card")
     recharge_records = relationship("CardRechargeRecord", back_populates="member_card", cascade="all, delete-orphan")
+    consumption_records = relationship("CardConsumptionRecord", back_populates="member_card", cascade="all, delete-orphan")
 
     def __repr__(self):
         return f"<MemberCard(id={self.id}, card_number={self.card_number}, balance={self.balance})>"
@@ -102,3 +103,26 @@ class CardRechargeRecord(Base):
 
     def __repr__(self):
         return f"<CardRechargeRecord(id={self.id}, amount={self.amount})>"
+
+
+class CardConsumptionRecord(Base):
+    """会员卡消费记录表模型"""
+    __tablename__ = "card_consumption_records"
+
+    id = Column(BigInteger, primary_key=True, index=True, autoincrement=True, comment='消费记录ID')
+    member_card_id = Column(BigInteger, ForeignKey('member_cards.id', ondelete='CASCADE'), nullable=False, index=True, comment='会员卡ID')
+    amount = Column(DECIMAL(10, 2), nullable=False, comment='消费金额')
+    balance_before = Column(DECIMAL(10, 2), comment='消费前余额')
+    balance_after = Column(DECIMAL(10, 2), comment='消费后余额')
+    related_type = Column(String(50), comment='关联类型：appointment/boarding/product')
+    related_id = Column(BigInteger, comment='关联ID')
+    payment_id = Column(BigInteger, ForeignKey('payments.id', ondelete='SET NULL'), comment='关联支付ID（组合支付时）')
+    remark = Column(String(255), comment='备注')
+    created_at = Column(TIMESTAMP, server_default=func.now(), comment='创建时间')
+
+    # 关系
+    member_card = relationship("MemberCard", back_populates="consumption_records")
+    payment = relationship("Payment")
+
+    def __repr__(self):
+        return f"<CardConsumptionRecord(id={self.id}, amount={self.amount})>"

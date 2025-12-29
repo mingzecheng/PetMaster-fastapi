@@ -9,7 +9,7 @@ from app.crud import payment as crud_payment
 from app.database import get_db
 from app.models.payment import PaymentStatus, PaymentMethod, Payment
 from app.models.user import User
-from app.schemas.payment import PaymentCreate, PaymentResponse, PaymentRequestResponse
+from app.schemas.payment import PaymentCreate, PaymentResponse, PaymentRequestResponse, CombinedPaymentCreate
 from app.services.payment_service import PaymentService
 from app.utils.dependencies import get_current_active_user
 from app.utils.exceptions import NotFoundError, ForbiddenError, AppException
@@ -20,15 +20,15 @@ logger = get_logger(__name__)
 router = APIRouter(prefix="/payments", tags=["支付管理"])
 
 
-@router.post("/alipay/create", response_model=PaymentRequestResponse, status_code=status.HTTP_201_CREATED,
-             summary="创建支付宝支付请求")
-async def create_alipay_payment(
+@router.post("/create", response_model=PaymentRequestResponse, status_code=status.HTTP_201_CREATED,
+             summary="创建支付请求")
+async def create_payment(
         payment_in: PaymentCreate,
         db: Session = Depends(get_db),
         current_user: User = Depends(get_current_active_user)
 ):
     """
-    创建支付宝支付请求
+    创建支付请求（Mock模式）
 
     - **amount**: 支付金额（单位：元）
     - **subject**: 商品标题
@@ -38,16 +38,7 @@ async def create_alipay_payment(
     """
     logger.info(f"创建支付请求: user_id={current_user.id}, amount={payment_in.amount}")
 
-    # 构建完整的notify_url（确保包含API路径）
-    from app.config import settings
-    base_url = settings.ALIPAY_NOTIFY_URL or ""
-    # 如果base_url已包含完整路径则使用，否则拼接
-    if base_url and not base_url.endswith("/notify"):
-        notify_url = f"{base_url.rstrip('/')}/api/payments/alipay/notify"
-    else:
-        notify_url = base_url
-
-    # 使用统一支付服务创建支付
+    # 使用统一支付服务创建支付（Mock模式）
     result = PaymentService.create_alipay_payment(
         db=db,
         user_id=current_user.id,
@@ -56,7 +47,7 @@ async def create_alipay_payment(
         description=payment_in.description,
         related_id=payment_in.related_id,
         related_type=payment_in.related_type,
-        notify_url=notify_url  # 传递完整的notify_url
+        notify_url=""  # Mock模式不需要notify_url
     )
 
     if not result.success:
@@ -70,7 +61,7 @@ async def create_alipay_payment(
         qr_code=result.qr_code or "",
         pay_url=result.pay_url or "",
         status="pending",
-        message=result.message or "支付请求已生成"
+        message=result.message or "支付请求已生成（Mock模式）"
     )
 
 
@@ -83,8 +74,8 @@ async def query_payment_status(
     """查询支付状态"""
     logger.info(f"查询支付状态: out_trade_no={out_trade_no}, user_id={current_user.id}")
 
-    # 使用服务层查询（自动同步支付宝状态）
-    payment = PaymentService.query_payment_status(db, out_trade_no, sync_from_alipay=True)
+    # 使用服务层查询
+    payment = PaymentService.query_payment_status(db, out_trade_no, sync_from_alipay=False)
 
     if not payment:
         raise NotFoundError("支付记录不存在")
@@ -97,8 +88,8 @@ async def query_payment_status(
         "out_trade_no": payment.out_trade_no,
         "status": payment.status,
         "amount": str(payment.amount),
-        "subject": payment.subject,  # 新增
-        "description": payment.description,  # 新增
+        "subject": payment.subject,
+        "description": payment.description,
         "created_at": payment.created_at,
         "paid_at": payment.paid_at
     }
@@ -117,7 +108,7 @@ async def poll_payment_status(
     - 仅返回状态和是否完成
     - 建议每 3 秒轮询一次
     """
-    payment = PaymentService.query_payment_status(db, out_trade_no, sync_from_alipay=True)
+    payment = PaymentService.query_payment_status(db, out_trade_no, sync_from_alipay=False)
 
     if not payment:
         raise NotFoundError("支付记录不存在")
@@ -168,15 +159,55 @@ async def read_payments(
     return payments
 
 
-@router.post("/alipay/notify", summary="支付宝异步通知")
-async def alipay_notify(
-        data: dict,
-        db: Session = Depends(get_db)
+
+
+@router.post("/combined", summary="创建组合支付（积分+会员卡+支付宝）")
+async def create_combined_payment(
+        payment_in: CombinedPaymentCreate,
+        db: Session = Depends(get_db),
+        current_user: User = Depends(get_current_active_user)
 ):
-    """处理支付宝异步通知"""
-    logger.info(f"收到支付宝异步通知")
+    """
+    创建组合支付（积分+会员卡余额+支付宝）
+    
+    支付优先级：积分 → 会员卡余额 → 支付宝
+    
+    - **amount**: 支付金额（单位：元）
+    - **subject**: 商品标题
+    - **related_id**: 关联ID（预约ID、寄养ID等）
+    - **related_type**: 关联类型（appointment、boarding等）
+    - **use_card_balance**: 是否使用会员卡余额（默认true）
+    - **use_points**: 使用积分数量（默认0，100积分=1元）
+    
+    返回：
+    - **points_used**: 使用的积分数量
+    - **points_deduction**: 积分抵扣金额
+    - **card_used**: 使用的会员卡余额
+    - **alipay_amount**: 需要支付宝支付的金额
+    - **fully_paid**: 是否已全额支付（true表示无需跳转支付宝）
+    - **pay_url**: 支付URL（如需支付宝）
+    - **out_trade_no**: 支付订单号（如需支付宝）
+    """
+    from decimal import Decimal
+    
+    logger.info(f"创建组合支付: user_id={current_user.id}, amount={payment_in.amount}, use_points={payment_in.use_points}, use_card={payment_in.use_card_balance}")
+    
+    try:
+        result = PaymentService.create_combined_payment(
+            db=db,
+            user_id=current_user.id,
+            amount=Decimal(str(payment_in.amount)),
+            subject=payment_in.subject,
+            related_id=payment_in.related_id,
+            related_type=payment_in.related_type,
+            use_card_balance=payment_in.use_card_balance,
+            use_points=payment_in.use_points
+        )
+        
+        logger.info(f"组合支付创建成功: user_id={current_user.id}, points={result['points_used']}, card={result['card_used']}, alipay={result['alipay_amount']}")
+        return result
+        
+    except Exception as e:
+        logger.error(f"创建组合支付失败: {str(e)}")
+        raise AppException(message=f"创建组合支付失败: {str(e)}")
 
-    # 使用服务层处理回调
-    result = PaymentService.handle_alipay_callback(db, data)
-
-    return result

@@ -71,9 +71,11 @@ async def confirm_mock_payment(
     }
     
     # 更新支付状态为已支付
+    from datetime import datetime
     payment.status = PaymentStatus.PAID
     payment.trade_no = mock_notify_data["trade_no"]
     payment.notify_data = str(mock_notify_data)
+    payment.paid_at = datetime.now()  # 设置支付完成时间
     db.add(payment)
     db.commit()
     db.refresh(payment)

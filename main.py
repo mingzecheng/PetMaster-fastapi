@@ -10,7 +10,7 @@ from app.config import settings
 from app.database import init_db
 from app.routers import (
     auth, users, pets, products, services, appointments, boarding, payments,
-    member_levels, points, member_cards, pet_health_records, orders, mock_payment
+    member_levels, points, member_cards, pet_health_records, orders, mock_payment, dashboard
 )
 from app.utils.exceptions import (
     AppException,
@@ -29,10 +29,9 @@ async def lifespan(app: FastAPI):
     # 启动事件
     logger.info("正在启动应用...")
 
-    # 数据库初始化
-    if settings.DEBUG:
-        init_db()
-        logger.info("数据库初始化完成")
+    # 数据库初始化 (自动创建表结构)
+    init_db()
+    logger.info("数据库初始化完成")
 
     # 应用配置检查
     logger.info(f"应用名称: {settings.APP_NAME}")
@@ -46,12 +45,26 @@ async def lifespan(app: FastAPI):
     # recaptchaV3 检查
     logger.info(f"reCAPTCHA: {settings.RECAPTCHA_ENABLED}")
     logger.info(f"RECAPTCHA_VERSION:{settings.RECAPTCHA_VERSION}")
+    
+    # 启动订单超时自动取消调度器
+    from app.services.scheduler_service import order_scheduler
+    try:
+        order_scheduler.start()
+    except Exception as e:
+        logger.error(f"订单调度器启动失败: {str(e)}")
+    
     logger.info(f"{settings.APP_NAME} 启动成功")
     logger.info(f"API文档地址: http://localhost:{settings.PORT}{settings.API_PREFIX}/docs")
 
     yield
     # 停止事件
     logger.info(f"{settings.APP_NAME} 正在停止...")
+    
+    # 关闭订单调度器
+    try:
+        order_scheduler.shutdown()
+    except Exception as e:
+        logger.error(f"订单调度器关闭失败: {str(e)}")
 
 
 # 创建FastAPI应用
@@ -108,6 +121,9 @@ app.include_router(pet_health_records.router, prefix=settings.API_PREFIX)
 
 # Mock支付路由（开发测试）
 app.include_router(mock_payment.router, prefix=settings.API_PREFIX)
+
+# 仪表盘统计路由
+app.include_router(dashboard.router, prefix=settings.API_PREFIX)
 
 if __name__ == "__main__":
     """项目启动入口"""

@@ -3,7 +3,7 @@ from datetime import datetime
 from fastapi import APIRouter, Depends, status, Query
 from sqlalchemy.orm import Session
 from app.database import get_db
-from app.schemas.appointment import AppointmentCreate, AppointmentUpdate, AppointmentResponse
+from app.schemas.appointment import AppointmentCreate, AppointmentUpdate, AppointmentResponse, AppointmentCancelRequest
 from app.models.user import User
 from app.models.appointment import AppointmentStatus
 from app.crud import appointment as crud_appointment, pet as crud_pet, service as crud_service
@@ -34,7 +34,11 @@ async def create_appointment(
     if not service:
         raise NotFoundError("服务不存在")
 
-    appointment = crud_appointment.create(db, obj_in=appointment_in)
+    # 创建预约时保存服务价格快照
+    appointment_data = appointment_in.model_dump()
+    appointment_data['price'] = service.price
+    
+    appointment = crud_appointment.create(db, obj_in=appointment_data)
     return appointment
 
 
@@ -131,28 +135,34 @@ async def update_appointment(
     return appointment
 
 
-@router.delete("/{appointment_id}", summary="取消预约")
+@router.post("/{appointment_id}/cancel", summary="取消预约")
 async def cancel_appointment(
         appointment_id: int,
+        request: AppointmentCancelRequest,
         db: Session = Depends(get_db),
         current_user: User = Depends(get_current_active_user)
 ):
-    """取消预约"""
-    appointment = crud_appointment.get(db, id=appointment_id)
-    if not appointment:
-        raise NotFoundError("预约不存在")
-
-    # 普通会员只能取消自己宠物的预约
-    if current_user.role == "member":
-        pet = crud_pet.get(db, id=appointment.pet_id)
-        if not pet or pet.owner_id != current_user.id:
-            raise ForbiddenError("无权取消此预约")
-
-    # 更新状态为已取消
-    appointment.status = AppointmentStatus.CANCELLED
-    db.commit()
-    db.refresh(appointment)
+    """
+    取消预约
+    
+    根据预约状态执行不同的取消逻辑：
+    - **pending（待支付）**：直接取消
+    - **confirmed（已支付）**：发起退款
+    """
+    from app.services.order_service import OrderCancelService
+    
+    result = OrderCancelService.cancel_appointment(
+        db=db,
+        appointment_id=appointment_id,
+        user_id=current_user.id,
+        reason=request.reason
+    )
+    
+    if not result.success:
+        raise ForbiddenError(result.message)
+    
     return {
-        "message": f"预约 #{appointment_id} 已成功取消",
-        "appointment_id": appointment_id
+        "success": result.success,
+        "message": result.message,
+        "refund_amount": str(result.refund_amount) if result.refund_amount else None
     }
