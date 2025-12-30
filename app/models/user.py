@@ -18,7 +18,6 @@ class User(Base):
     id = Column(BigInteger, primary_key=True, index=True, autoincrement=True, comment='用户ID')
     username = Column(String(50), unique=True, nullable=False, index=True, comment='用户名')
     password_hash = Column(String(255), nullable=False, comment='密码哈希')
-    mobile = Column(String(20), unique=True, index=True, comment='手机号')
     email = Column(String(100), unique=True, index=True, comment='邮箱')
     role = Column(Enum(UserRole, native_enum=False), default=UserRole.MEMBER, comment='角色：管理员/员工/会员')
     

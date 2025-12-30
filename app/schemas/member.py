@@ -135,7 +135,6 @@ class UserWithMember(BaseModel):
     """包含会员信息的用户Schema"""
     id: int
     username: str
-    mobile: Optional[str]
     email: Optional[str]
     role: str
     points: int

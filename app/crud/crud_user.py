@@ -16,10 +16,6 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
         """根据用户名获取用户"""
         return db.query(User).filter(User.username == username).first()
 
-    def get_by_mobile(self, db: Session, *, mobile: str) -> Optional[User]:
-        """根据手机号获取用户"""
-        return db.query(User).filter(User.mobile == mobile).first()
-
     def get_by_email(self, db: Session, *, email: str) -> Optional[User]:
         """根据邮箱获取用户"""
         return db.query(User).filter(User.email == email).first()
@@ -29,7 +25,6 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
         db_obj = User(
             username=obj_in.username,
             password_hash=get_password_hash(obj_in.password),
-            mobile=obj_in.mobile,
             email=obj_in.email,
             role=obj_in.role
         )
@@ -62,15 +57,13 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
         
         Args:
             db: 数据库会话
-            username: 用户名或手机号
+            username: 用户名
             password: 密码
         
         Returns:
             认证成功返回用户对象，失败返回None
         """
         user = self.get_by_username(db, username=username)
-        if not user:
-            user = self.get_by_mobile(db, mobile=username)
 
         if not user:
             logger.warning(f"用户认证失败: 不存在的用户名 {username}")

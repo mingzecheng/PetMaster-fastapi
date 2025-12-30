@@ -22,6 +22,49 @@ def generate_card_number() -> str:
     return "".join(random.choices(string.digits, k=16))
 
 
+@router.post("/apply", response_model=MemberCardResponse, summary="用户自助开通会员卡")
+async def apply_member_card(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user)
+):
+    """
+    用户自助申请开通会员卡
+    - 无需管理员权限
+    - 仅限member角色用户
+    - 自动生成唯一卡号
+    - 用户注销会员卡后可重新办卡
+    """
+    # 检查用户是否已有会员卡
+    existing_card = db.query(MemberCard).filter(MemberCard.user_id == current_user.id).first()
+    if existing_card:
+        status_text = {
+            "active": "正常使用中",
+            "frozen": "已冻结",
+            "cancelled": "已注销"
+        }.get(existing_card.status, existing_card.status)
+        raise HTTPException(
+            status_code=400, 
+            detail=f"您已有会员卡（卡号: {existing_card.card_number}，状态: {status_text}）"
+        )
+    
+    # 生成唯一卡号
+    while True:
+        card_number = generate_card_number()
+        if not db.query(MemberCard).filter(MemberCard.card_number == card_number).first():
+            break
+    
+    # 创建会员卡
+    member_card = MemberCard(
+        user_id=current_user.id,
+        card_number=card_number
+    )
+    db.add(member_card)
+    db.commit()
+    db.refresh(member_card)
+    
+    return member_card
+
+
 @router.post("/", response_model=MemberCardResponse, summary="开通会员卡")
 async def create_member_card(
     card_in: MemberCardCreate,

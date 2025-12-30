@@ -7,7 +7,6 @@ from app.models.user import UserRole
 class UserBase(BaseModel):
     """用户基础Schema"""
     username: str = Field(..., min_length=3, max_length=50, description="用户名")
-    mobile: Optional[str] = Field(None, max_length=20, description="手机号")
     email: Optional[EmailStr] = Field(None, description="邮箱")
     role: UserRole = Field(default=UserRole.MEMBER, description="用户角色")
 
@@ -20,7 +19,6 @@ class UserCreate(UserBase):
 class UserUpdate(BaseModel):
     """用户更新Schema - 不包含密码字段"""
     username: Optional[str] = Field(None, min_length=3, max_length=50, description="用户名")
-    mobile: Optional[str] = Field(None, max_length=20, description="手机号")
     email: Optional[EmailStr] = Field(None, description="邮箱")
     role: Optional[UserRole] = Field(None, description="用户角色")
 
@@ -53,7 +51,7 @@ class UserResponse(UserBase):
 
 class UserLogin(BaseModel):
     """用户登录Schema"""
-    username: str = Field(..., description="用户名或手机号")
+    username: str = Field(..., description="用户名")
     password: str = Field(..., description="密码")
     recaptcha_token: Optional[str] = Field(None, description="reCAPTCHA token")
 

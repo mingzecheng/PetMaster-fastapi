@@ -43,8 +43,6 @@ async def update_user_me(
             raise ConflictError(f"用户名已被使用，请更换其他用户名")
         elif "email" in error_msg:
             raise ConflictError(f"邮箱已被使用，请更换其他邮箱")
-        elif "mobile" in error_msg:
-            raise ConflictError(f"手机号已被使用，请更换其他手机号")
         else:
             raise ConflictError("数据冲突，请检查输入信息")
 
@@ -111,7 +109,6 @@ async def create_user(
     
     - **username**: 用户名（3-50个字符，唯一）
     - **password**: 密码（最少6个字符）
-    - **mobile**: 手机号（可选，唯一）
     - **email**: 邮箱（可选，唯一）
     - **role**: 角色（admin/staff/member）
     """
@@ -121,12 +118,6 @@ async def create_user(
     existing_user = crud_user.get_by_username(db, username=user_in.username)
     if existing_user:
         raise ConflictError(f"用户名 '{user_in.username}' 已被使用")
-    
-    # 检查手机号是否已存在
-    if user_in.mobile:
-        existing_mobile = crud_user.get_by_mobile(db, mobile=user_in.mobile)
-        if existing_mobile:
-            raise ConflictError(f"手机号 '{user_in.mobile}' 已被使用")
     
     # 检查邮箱是否已存在
     if user_in.email:
@@ -182,8 +173,6 @@ async def update_user(
             raise ConflictError(f"用户名已被使用，请更换其他用户名")
         elif "email" in error_msg:
             raise ConflictError(f"邮箱已被使用，请更换其他邮箱")
-        elif "mobile" in error_msg:
-            raise ConflictError(f"手机号已被使用，请更换其他手机号")
         else:
             raise ConflictError("数据冲突，请检查输入信息")
 

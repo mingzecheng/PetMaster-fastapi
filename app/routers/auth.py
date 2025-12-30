@@ -23,19 +23,12 @@ async def register(user_in: UserCreate, db: Session = Depends(get_db)):
     
     - **username**: 用户名（唯一）
     - **password**: 密码
-    - **mobile**: 手机号（可选）
-    - **email**: 邮箱（必填）
+    - **email**: 邮箱（可选）
     """
     # 检查用户名是否已存在
     db_user = crud_user.get_by_username(db, username=user_in.username)
     if db_user:
         raise ValidationError("用户名已存在")
-
-    # 检查手机号是否已存在
-    if user_in.mobile:
-        db_user = crud_user.get_by_mobile(db, mobile=user_in.mobile)
-        if db_user:
-            raise ValidationError("手机号已被注册")
 
     # 检查邮箱是否已存在
     if user_in.email:
@@ -53,7 +46,7 @@ async def login(user_credentials: UserLogin, db: Session = Depends(get_db)):
     """
     用户登录接口
     
-    - **username**: 用户名或手机号
+    - **username**: 用户名
     - **password**: 密码
     - **recaptcha_token**: Google reCAPTCHA v3 token (可选)
     
