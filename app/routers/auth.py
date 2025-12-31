@@ -94,7 +94,7 @@ async def send_email_code(request: EmailCodeRequest, db: Session = Depends(get_d
     from app.utils.email import EmailCodeCache, generate_code, send_verification_email
     
     # 检查发送频率
-    can_send, remaining = EmailCodeCache.can_send(request.email)
+    can_send, remaining = EmailCodeCache.can_send(request.email, request.scene)
     if not can_send:
         return EmailCodeResponse(success=False, message=f"请{remaining}秒后再试")
     

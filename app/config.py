@@ -52,10 +52,24 @@ class Settings(BaseSettings):
     RECAPTCHA_ENABLED: bool   # 是否启用 reCAPTCHA
     RECAPTCHA_V3_THRESHOLD: float  # v3 专用：验证通过的最低评分
 
+    # Redis配置
+    REDIS_HOST: str = "localhost"  # Redis主机地址
+    REDIS_PORT: int = 6379  # Redis端口
+    REDIS_PASSWORD: str = ""  # Redis密码（可选）
+    REDIS_DB: int = 0  # Redis数据库索引
+    REDIS_ENABLED: bool = False  # 是否启用Redis
+
     @property
     def database_url(self) -> str:
         """构造数据库连接URL"""
         return f"mysql+pymysql://{self.DATABASE_USER}:{self.DATABASE_PASSWORD}@{self.DATABASE_HOST}:{self.DATABASE_PORT}/{self.DATABASE_NAME}?charset=utf8mb4"
+
+    @property
+    def redis_url(self) -> str:
+        """构造Redis连接URL"""
+        if self.REDIS_PASSWORD:
+            return f"redis://:{self.REDIS_PASSWORD}@{self.REDIS_HOST}:{self.REDIS_PORT}/{self.REDIS_DB}"
+        return f"redis://{self.REDIS_HOST}:{self.REDIS_PORT}/{self.REDIS_DB}"
 
     class Config:
         env_file = ".env"

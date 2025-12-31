@@ -2,8 +2,10 @@
 邮箱服务工具类
 
 支持QQ邮箱SMTP发送验证码邮件。
+优先使用Redis存储验证码，Redis不可用时降级到内存存储。
 """
 
+import json
 import random
 import string
 import smtplib
@@ -12,46 +14,73 @@ from email.mime.multipart import MIMEMultipart
 from email.header import Header
 from email.utils import formataddr
 from datetime import datetime, timedelta
-from typing import Dict
+from typing import Dict, Optional
 from app.config import settings
 from app.utils.logger import get_logger
+from app.utils.redis_client import RedisClient
 
 logger = get_logger(__name__)
 
 
 class EmailCodeCache:
     """
-    邮箱验证码缓存管理（内存存储）
+    邮箱验证码缓存管理
     
-    生产环境建议使用Redis替代。
-    结构: {email: {"code": "123456", "expires_at": datetime, "scene": "login"}}
+    优先使用Redis存储，Redis不可用时降级到内存存储。
+    Redis Key格式: email_code:{email}:{scene}
+    Redis Value格式: {"code": "123456", "created_at": "2025-12-31T16:00:00"}
     """
     
-    _cache: Dict[str, Dict] = {}
+    _cache: Dict[str, Dict] = {}  # 内存缓存降级方案
+    
+    @classmethod
+    def _get_redis_key(cls, email: str, scene: str) -> str:
+        """构造Redis键名"""
+        return f"email_code:{email.lower()}:{scene}"
     
     @classmethod
     def store(cls, email: str, code: str, scene: str) -> None:
         """
-        存储验证码
+        存储验证码（优先使用Redis）
         
         Args:
             email: 邮箱地址
             code: 验证码
-            scene: 场景（login/register）
+            scene: 场景（login/register/set_password/change_password）
         """
+        email_lower = email.lower()
+        redis_key = cls._get_redis_key(email, scene)
+        
+        # 准备数据
+        data = {
+            "code": code,
+            "created_at": datetime.now().isoformat()
+        }
+        
+        # 优先使用Redis
+        if RedisClient.is_redis_enabled():
+            try:
+                # 使用Redis的SETEX命令，自动设置过期时间
+                expire_seconds = settings.EMAIL_CODE_EXPIRE_MINUTES * 60
+                RedisClient.set_value(redis_key, data, expire_seconds)
+                logger.debug(f"邮箱验证码已存储到Redis: {email[:3]}***@***, 场景: {scene}, 过期时间: {settings.EMAIL_CODE_EXPIRE_MINUTES}分钟")
+                return
+            except Exception as e:
+                logger.warning(f"Redis存储失败，降级使用内存缓存: {str(e)}")
+        
+        # 降级到内存缓存
         expires_at = datetime.now() + timedelta(minutes=settings.EMAIL_CODE_EXPIRE_MINUTES)
-        cls._cache[email.lower()] = {
+        cls._cache[redis_key] = {
             "code": code,
             "expires_at": expires_at,
-            "scene": scene,
             "created_at": datetime.now()
         }
-        logger.debug(f"邮箱验证码已缓存: {email[:3]}***@***, 场景: {scene}")
+        logger.debug(f"邮箱验证码已缓存到内存: {email[:3]}***@***, 场景: {scene}")
     
     @classmethod
     def verify(cls, email: str, code: str, scene: str) -> tuple[bool, str]:
         """
-        验证验证码
+        验证验证码（优先从Redis读取）
         
         Args:
             email: 邮箱地址
@@ -61,38 +90,88 @@ class EmailCodeCache:
         Returns:
             (是否成功, 错误信息)
         """
-        cache_data = cls._cache.get(email.lower())
+        email_lower = email.lower()
+        redis_key = cls._get_redis_key(email, scene)
+        
+        # 优先从Redis读取
+        if RedisClient.is_redis_enabled():
+            try:
+                cache_data = RedisClient.get_value(redis_key, as_json=True)
+                
+                if not cache_data:
+                    return False, "验证码不存在或已过期"
+                
+                if cache_data.get("code") != code:
+                    return False, "验证码错误"
+                
+                # 验证成功后删除
+                RedisClient.delete(redis_key)
+                logger.debug(f"验证码验证成功: {email[:3]}***@***, 场景: {scene}")
+                return True, ""
+                
+            except Exception as e:
+                logger.warning(f"Redis读取失败，尝试从内存缓存验证: {str(e)}")
+        
+        # 降级到内存缓存
+        cache_data = cls._cache.get(redis_key)
         
         if not cache_data:
             return False, "验证码不存在或已过期"
         
-        if cache_data["scene"] != scene:
-            return False, "验证码场景不匹配"
-        
-        if datetime.now() > cache_data["expires_at"]:
-            cls._cache.pop(email.lower(), None)
+        # 检查过期
+        if datetime.now() > cache_data.get("expires_at", datetime.now()):
+            cls._cache.pop(redis_key, None)
             return False, "验证码已过期"
         
-        if cache_data["code"] != code:
+        if cache_data.get("code") != code:
             return False, "验证码错误"
         
         # 验证成功后删除缓存
-        cls._cache.pop(email.lower(), None)
+        cls._cache.pop(redis_key, None)
+        logger.debug(f"验证码验证成功（内存缓存）: {email[:3]}***@***, 场景: {scene}")
         return True, ""
     
     @classmethod
-    def can_send(cls, email: str, interval_seconds: int = 60) -> tuple[bool, int]:
+    def can_send(cls, email: str, scene: str, interval_seconds: int = 60) -> tuple[bool, int]:
         """
         检查是否可以发送验证码（防止频繁发送）
         
         Args:
             email: 邮箱地址
+            scene: 场景
             interval_seconds: 发送间隔（秒）
             
         Returns:
             (是否可以发送, 剩余等待秒数)
         """
-        cache_data = cls._cache.get(email.lower())
+        email_lower = email.lower()
+        redis_key = cls._get_redis_key(email, scene)
+        
+        # 优先从Redis检查
+        if RedisClient.is_redis_enabled():
+            try:
+                cache_data = RedisClient.get_value(redis_key, as_json=True)
+                
+                if not cache_data:
+                    return True, 0
+                
+                # 解析创建时间
+                created_at_str = cache_data.get("created_at")
+                if created_at_str:
+                    created_at = datetime.fromisoformat(created_at_str)
+                    elapsed = (datetime.now() - created_at).total_seconds()
+                    
+                    if elapsed < interval_seconds:
+                        remaining = int(interval_seconds - elapsed)
+                        return False, remaining
+                
+                return True, 0
+                
+            except Exception as e:
+                logger.warning(f"Redis读取失败，尝试从内存缓存检查: {str(e)}")
+        
+        # 降级到内存缓存
+        cache_data = cls._cache.get(redis_key)
         
         if not cache_data:
             return True, 0
@@ -187,8 +266,8 @@ async def send_verification_email(email: str, code: str) -> tuple[bool, str]:
         msg.attach(html_part)
         
         # 发送邮件
-        logger.info(f"正在连接SMTP服务器: {settings.EMAIL_SMTP_HOST}:{settings.EMAIL_SMTP_PORT}")
-        logger.info(f"发件人: {settings.EMAIL_SENDER}")
+        logger.debug(f"正在连接SMTP服务器: {settings.EMAIL_SMTP_HOST}:{settings.EMAIL_SMTP_PORT}")
+        logger.debug(f"发件人: {settings.EMAIL_SENDER}")
         
         try:
             # 创建SSL连接，设置超时
@@ -199,14 +278,14 @@ async def send_verification_email(email: str, code: str) -> tuple[bool, str]:
             )
             
             try:
-                # 开启调试模式（可选，生产环境建议关闭）
+                # 开启调试模式（仅在DEBUG模式下启用）
                 if settings.DEBUG:
-                    server.set_debuglevel(1)
+                    server.set_debuglevel(0)  # 0=关闭详细日志，1=开启详细日志
                 
-                logger.info("SMTP连接成功，开始认证...")
+                logger.debug("SMTP连接成功，开始认证...")
                 # 登录验证
                 server.login(settings.EMAIL_SENDER, settings.EMAIL_PASSWORD)
-                logger.info("SMTP认证成功，发送邮件...")
+                logger.debug("SMTP认证成功，发送邮件...")
                 
                 # 发送邮件
                 server.sendmail(settings.EMAIL_SENDER, [email], msg.as_bytes())

@@ -9,6 +9,9 @@ pymysql==1.1.0
 cryptography==3.4.8
 alembic==1.12.1
 
+# Redis缓存
+redis==5.0.1
+
 # 安全认证
 python-jose[cryptography]==3.3.0
 passlib[bcrypt]==1.7.4

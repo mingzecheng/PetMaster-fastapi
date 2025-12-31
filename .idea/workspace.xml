@@ -5,7 +5,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="3578b8bd-4d39-4159-8331-d4b984d33d66" name="更改" comment="集成recaptchav3,v2">
+      <change beforePath="$PROJECT_DIR$/.env" beforeDir="false" afterPath="$PROJECT_DIR$/.env" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/config.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/config.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/routers/auth.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/routers/auth.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/utils/email.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/utils/email.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -69,100 +74,101 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;HTTP 请求.test_main | 1. 用户注册.executor&quot;: &quot;Run&quot;,
-    &quot;HTTP 请求.test_main | 10. 创建商品（员工）.executor&quot;: &quot;Run&quot;,
-    &quot;HTTP 请求.test_main | 11. 获取商品详情.executor&quot;: &quot;Run&quot;,
-    &quot;HTTP 请求.test_main | 12. 更新商品信息（员工）.executor&quot;: &quot;Run&quot;,
-    &quot;HTTP 请求.test_main | 13. 删除商品（员工）.executor&quot;: &quot;Run&quot;,
-    &quot;HTTP 请求.test_main | 14. 更新商品库存（员工）.executor&quot;: &quot;Run&quot;,
-    &quot;HTTP 请求.test_main | 15. 获取服务列表.executor&quot;: &quot;Run&quot;,
-    &quot;HTTP 请求.test_main | 16. 创建服务（员工）.executor&quot;: &quot;Run&quot;,
-    &quot;HTTP 请求.test_main | 17. 获取服务详情.executor&quot;: &quot;Run&quot;,
-    &quot;HTTP 请求.test_main | 18. 更新服务信息（员工）.executor&quot;: &quot;Run&quot;,
-    &quot;HTTP 请求.test_main | 19. 删除服务（员工）.executor&quot;: &quot;Run&quot;,
-    &quot;HTTP 请求.test_main | 2. 用户登录.executor&quot;: &quot;Run&quot;,
-    &quot;HTTP 请求.test_main | 20. 创建宠物档案.executor&quot;: &quot;Run&quot;,
-    &quot;HTTP 请求.test_main | 21. 获取宠物列表.executor&quot;: &quot;Run&quot;,
-    &quot;HTTP 请求.test_main | 22. 获取宠物详情.executor&quot;: &quot;Run&quot;,
-    &quot;HTTP 请求.test_main | 23. 更新宠物信息.executor&quot;: &quot;Run&quot;,
-    &quot;HTTP 请求.test_main | 24. 删除宠物.executor&quot;: &quot;Run&quot;,
-    &quot;HTTP 请求.test_main | 25. 添加健康记录.executor&quot;: &quot;Run&quot;,
-    &quot;HTTP 请求.test_main | 26. 获取宠物健康记录.executor&quot;: &quot;Run&quot;,
-    &quot;HTTP 请求.test_main | 27. 创建预约.executor&quot;: &quot;Run&quot;,
-    &quot;HTTP 请求.test_main | 28. 获取预约列表.executor&quot;: &quot;Run&quot;,
-    &quot;HTTP 请求.test_main | 29. 获取预约详情.executor&quot;: &quot;Run&quot;,
-    &quot;HTTP 请求.test_main | 3. 获取当前用户信息.executor&quot;: &quot;Run&quot;,
-    &quot;HTTP 请求.test_main | 30. 更新预约信息.executor&quot;: &quot;Run&quot;,
-    &quot;HTTP 请求.test_main | 31. 取消预约.executor&quot;: &quot;Run&quot;,
-    &quot;HTTP 请求.test_main | 32. 创建寄养记录.executor&quot;: &quot;Run&quot;,
-    &quot;HTTP 请求.test_main | 33. 获取寄养列表.executor&quot;: &quot;Run&quot;,
-    &quot;HTTP 请求.test_main | 34. 获取进行中的寄养（员工）.executor&quot;: &quot;Run&quot;,
-    &quot;HTTP 请求.test_main | 35. 获取寄养详情.executor&quot;: &quot;Run&quot;,
-    &quot;HTTP 请求.test_main | 36. 更新寄养信息（员工）.executor&quot;: &quot;Run&quot;,
-    &quot;HTTP 请求.test_main | 37. 删除寄养记录（员工）.executor&quot;: &quot;Run&quot;,
-    &quot;HTTP 请求.test_main | 38. 创建交易记录（员工）.executor&quot;: &quot;Run&quot;,
-    &quot;HTTP 请求.test_main | 39. 获取交易列表.executor&quot;: &quot;Run&quot;,
-    &quot;HTTP 请求.test_main | 4. 更新当前用户信息.executor&quot;: &quot;Run&quot;,
-    &quot;HTTP 请求.test_main | 4. 获取商品列表.executor&quot;: &quot;Run&quot;,
-    &quot;HTTP 请求.test_main | 40. 获取我的交易记录.executor&quot;: &quot;Run&quot;,
-    &quot;HTTP 请求.test_main | 41. 获取我的总积分.executor&quot;: &quot;Run&quot;,
-    &quot;HTTP 请求.test_main | 42. 获取我的总消费.executor&quot;: &quot;Run&quot;,
-    &quot;HTTP 请求.test_main | 43. 获取交易详情.executor&quot;: &quot;Run&quot;,
-    &quot;HTTP 请求.test_main | 44. 测试不存在的服务.executor&quot;: &quot;Run&quot;,
-    &quot;HTTP 请求.test_main | 45. 测试删除不存在的服务.executor&quot;: &quot;Run&quot;,
-    &quot;HTTP 请求.test_main | 46. 测试更新不存在的服务.executor&quot;: &quot;Run&quot;,
-    &quot;HTTP 请求.test_main | 47. 测试获取不存在的商品.executor&quot;: &quot;Run&quot;,
-    &quot;HTTP 请求.test_main | 48. 测试删除不存在的商品.executor&quot;: &quot;Run&quot;,
-    &quot;HTTP 请求.test_main | 49. 测试获取不存在的宠物.executor&quot;: &quot;Run&quot;,
-    &quot;HTTP 请求.test_main | 5. 获取服务列表.executor&quot;: &quot;Run&quot;,
-    &quot;HTTP 请求.test_main | 5. 获取用户列表（管理员）.executor&quot;: &quot;Run&quot;,
-    &quot;HTTP 请求.test_main | 50. 测试获取不存在的预约.executor&quot;: &quot;Run&quot;,
-    &quot;HTTP 请求.test_main | 51. 测试获取不存在的寄养记录.executor&quot;: &quot;Run&quot;,
-    &quot;HTTP 请求.test_main | 52. 测试获取不存在的交易.executor&quot;: &quot;Run&quot;,
-    &quot;HTTP 请求.test_main | 53. 测试获取不存在的用户.executor&quot;: &quot;Run&quot;,
-    &quot;HTTP 请求.test_main | 54. 测试删除不存在的用户.executor&quot;: &quot;Run&quot;,
-    &quot;HTTP 请求.test_main | 57. 创建支付宝支付请求.executor&quot;: &quot;Run&quot;,
-    &quot;HTTP 请求.test_main | 58. 查询支付状态.executor&quot;: &quot;Run&quot;,
-    &quot;HTTP 请求.test_main | 59. 获取支付列表.executor&quot;: &quot;Run&quot;,
-    &quot;HTTP 请求.test_main | 6. 创建宠物档案.executor&quot;: &quot;Run&quot;,
-    &quot;HTTP 请求.test_main | 6. 获取指定用户信息（管理员）.executor&quot;: &quot;Run&quot;,
-    &quot;HTTP 请求.test_main | 61. 支付宝沙箱环境测试 - 创建支付.executor&quot;: &quot;Run&quot;,
-    &quot;HTTP 请求.test_main | 7. 更新指定用户信息（管理员）.executor&quot;: &quot;Run&quot;,
-    &quot;HTTP 请求.test_main | 7. 获取宠物列表.executor&quot;: &quot;Run&quot;,
-    &quot;HTTP 请求.test_main | 8. 创建预约.executor&quot;: &quot;Run&quot;,
-    &quot;HTTP 请求.test_main | 9. 获取商品列表.executor&quot;: &quot;Run&quot;,
-    &quot;HTTP 请求.test_main | 9. 获取我的积分.executor&quot;: &quot;Run&quot;,
-    &quot;HTTP 请求.test_main | 健康检查.executor&quot;: &quot;Run&quot;,
-    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
-    &quot;Python.init_data.executor&quot;: &quot;Run&quot;,
-    &quot;Python.main.executor&quot;: &quot;Run&quot;,
-    &quot;Python.test_alipay_keys.executor&quot;: &quot;Run&quot;,
-    &quot;Python.test_imports.executor&quot;: &quot;Run&quot;,
-    &quot;Python.拼接图片.executor&quot;: &quot;Run&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/Users/mingzechen/PycharmProjects/PetMaster/PetMaster-fastapi&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "HTTP 请求.test_main | 1. 用户注册.executor": "Run",
+    "HTTP 请求.test_main | 10. 创建商品（员工）.executor": "Run",
+    "HTTP 请求.test_main | 11. 获取商品详情.executor": "Run",
+    "HTTP 请求.test_main | 12. 更新商品信息（员工）.executor": "Run",
+    "HTTP 请求.test_main | 13. 删除商品（员工）.executor": "Run",
+    "HTTP 请求.test_main | 14. 更新商品库存（员工）.executor": "Run",
+    "HTTP 请求.test_main | 15. 获取服务列表.executor": "Run",
+    "HTTP 请求.test_main | 16. 创建服务（员工）.executor": "Run",
+    "HTTP 请求.test_main | 17. 获取服务详情.executor": "Run",
+    "HTTP 请求.test_main | 18. 更新服务信息（员工）.executor": "Run",
+    "HTTP 请求.test_main | 19. 删除服务（员工）.executor": "Run",
+    "HTTP 请求.test_main | 2. 用户登录.executor": "Run",
+    "HTTP 请求.test_main | 20. 创建宠物档案.executor": "Run",
+    "HTTP 请求.test_main | 21. 获取宠物列表.executor": "Run",
+    "HTTP 请求.test_main | 22. 获取宠物详情.executor": "Run",
+    "HTTP 请求.test_main | 23. 更新宠物信息.executor": "Run",
+    "HTTP 请求.test_main | 24. 删除宠物.executor": "Run",
+    "HTTP 请求.test_main | 25. 添加健康记录.executor": "Run",
+    "HTTP 请求.test_main | 26. 获取宠物健康记录.executor": "Run",
+    "HTTP 请求.test_main | 27. 创建预约.executor": "Run",
+    "HTTP 请求.test_main | 28. 获取预约列表.executor": "Run",
+    "HTTP 请求.test_main | 29. 获取预约详情.executor": "Run",
+    "HTTP 请求.test_main | 3. 获取当前用户信息.executor": "Run",
+    "HTTP 请求.test_main | 30. 更新预约信息.executor": "Run",
+    "HTTP 请求.test_main | 31. 取消预约.executor": "Run",
+    "HTTP 请求.test_main | 32. 创建寄养记录.executor": "Run",
+    "HTTP 请求.test_main | 33. 获取寄养列表.executor": "Run",
+    "HTTP 请求.test_main | 34. 获取进行中的寄养（员工）.executor": "Run",
+    "HTTP 请求.test_main | 35. 获取寄养详情.executor": "Run",
+    "HTTP 请求.test_main | 36. 更新寄养信息（员工）.executor": "Run",
+    "HTTP 请求.test_main | 37. 删除寄养记录（员工）.executor": "Run",
+    "HTTP 请求.test_main | 38. 创建交易记录（员工）.executor": "Run",
+    "HTTP 请求.test_main | 39. 获取交易列表.executor": "Run",
+    "HTTP 请求.test_main | 4. 更新当前用户信息.executor": "Run",
+    "HTTP 请求.test_main | 4. 获取商品列表.executor": "Run",
+    "HTTP 请求.test_main | 40. 获取我的交易记录.executor": "Run",
+    "HTTP 请求.test_main | 41. 获取我的总积分.executor": "Run",
+    "HTTP 请求.test_main | 42. 获取我的总消费.executor": "Run",
+    "HTTP 请求.test_main | 43. 获取交易详情.executor": "Run",
+    "HTTP 请求.test_main | 44. 测试不存在的服务.executor": "Run",
+    "HTTP 请求.test_main | 45. 测试删除不存在的服务.executor": "Run",
+    "HTTP 请求.test_main | 46. 测试更新不存在的服务.executor": "Run",
+    "HTTP 请求.test_main | 47. 测试获取不存在的商品.executor": "Run",
+    "HTTP 请求.test_main | 48. 测试删除不存在的商品.executor": "Run",
+    "HTTP 请求.test_main | 49. 测试获取不存在的宠物.executor": "Run",
+    "HTTP 请求.test_main | 5. 获取服务列表.executor": "Run",
+    "HTTP 请求.test_main | 5. 获取用户列表（管理员）.executor": "Run",
+    "HTTP 请求.test_main | 50. 测试获取不存在的预约.executor": "Run",
+    "HTTP 请求.test_main | 51. 测试获取不存在的寄养记录.executor": "Run",
+    "HTTP 请求.test_main | 52. 测试获取不存在的交易.executor": "Run",
+    "HTTP 请求.test_main | 53. 测试获取不存在的用户.executor": "Run",
+    "HTTP 请求.test_main | 54. 测试删除不存在的用户.executor": "Run",
+    "HTTP 请求.test_main | 57. 创建支付宝支付请求.executor": "Run",
+    "HTTP 请求.test_main | 58. 查询支付状态.executor": "Run",
+    "HTTP 请求.test_main | 59. 获取支付列表.executor": "Run",
+    "HTTP 请求.test_main | 6. 创建宠物档案.executor": "Run",
+    "HTTP 请求.test_main | 6. 获取指定用户信息（管理员）.executor": "Run",
+    "HTTP 请求.test_main | 61. 支付宝沙箱环境测试 - 创建支付.executor": "Run",
+    "HTTP 请求.test_main | 7. 更新指定用户信息（管理员）.executor": "Run",
+    "HTTP 请求.test_main | 7. 获取宠物列表.executor": "Run",
+    "HTTP 请求.test_main | 8. 创建预约.executor": "Run",
+    "HTTP 请求.test_main | 9. 获取商品列表.executor": "Run",
+    "HTTP 请求.test_main | 9. 获取我的积分.executor": "Run",
+    "HTTP 请求.test_main | 健康检查.executor": "Run",
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "Python.init_data.executor": "Run",
+    "Python.main.executor": "Run",
+    "Python.test_alipay_keys.executor": "Run",
+    "Python.test_imports.executor": "Run",
+    "Python.拼接图片.executor": "Run",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "git-widget-placeholder": "master",
+    "last_opened_file_path": "/Users/mingzechen/PycharmProjects/PetMaster/PetMaster-fastapi",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "preferences.pluginManager",
+    "vue.rearranger.settings.migration": "true"
   },
-  &quot;keyToStringList&quot;: {
-    &quot;DatabaseDriversLRU&quot;: [
-      &quot;mysql&quot;
+  "keyToStringList": {
+    "DatabaseDriversLRU": [
+      "redis",
+      "mysql"
     ],
-    &quot;com.intellij.ide.scratch.LRUPopupBuilder$1/SQL 方言&quot;: [
-      &quot;MySQL&quot;
+    "com.intellij.ide.scratch.LRUPopupBuilder$1/SQL 方言": [
+      "MySQL"
     ]
   }
-}</component>
+}]]></component>
   <component name="RunManager" selected="Python.main">
     <configuration name="test_main | 58. 查询支付状态" type="HttpClient.HttpRequestRunConfigurationType" factoryName="HTTP Request" temporary="true" nameIsGenerated="true" path="$PROJECT_DIR$/test_main.http" executionIdentifier="58. 查询支付状态" index="61" runType="运行单个请求">
       <method v="2" />
@@ -390,7 +396,12 @@
       <workItem from="1766880820114" duration="2024000" />
       <workItem from="1766883731429" duration="159000" />
       <workItem from="1766883901010" duration="41627000" />
-      <workItem from="1767065983582" duration="679000" />
+      <workItem from="1767065983582" duration="7284000" />
+      <workItem from="1767088205802" duration="139000" />
+      <workItem from="1767089448946" duration="276000" />
+      <workItem from="1767089755796" duration="73000" />
+      <workItem from="1767089915871" duration="1378000" />
+      <workItem from="1767168370575" duration="936000" />
     </task>
     <task id="LOCAL-00001" summary="基本完成">
       <option name="closed" value="true" />
@@ -459,7 +470,7 @@
     <option name="REARRANGE_BEFORE_PROJECT_COMMIT" value="true" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/PetMaster_fastapi$main.coverage" NAME="main 覆盖结果" MODIFIED="1767066051918" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/PetMaster_fastapi$main.coverage" NAME="main 覆盖结果" MODIFIED="1767169232946" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/PetMaster$init_data.coverage" NAME="init_data 覆盖结果" MODIFIED="1763475573331" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/PetMaster_fastapi$test_imports.coverage" NAME="test_imports 覆盖结果" MODIFIED="1765700850765" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/PetMaster_fastapi$.coverage" NAME="拼接图片 覆盖结果" MODIFIED="1765863247483" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$USER_HOME$/Library/Containers/com.tencent.xinWeChat/Data/Documents/xwechat_files/wxid_wzkzqv88gkat22_7092/msg/file/2025-12" />
