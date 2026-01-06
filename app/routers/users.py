@@ -1,10 +1,10 @@
-from typing import List
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
-from app.database import get_db
-from app.schemas.user import UserResponse, UserCreate, UserUpdate, ChangePassword
-from app.models.user import User
+
 from app.crud import user as crud_user
+from app.database import get_db
+from app.models.user import User
+from app.schemas.user import UserResponse, UserCreate, UserUpdate, ChangePassword
 from app.utils.dependencies import get_current_active_user, require_admin, require_staff
 from app.utils.exceptions import NotFoundError, ForbiddenError
 from app.utils.security import verify_password, get_password_hash
@@ -79,8 +79,7 @@ async def read_users(
 ):
     """获取用户列表（管理员和员工可访问），包含会员等级和会员卡信息"""
     from sqlalchemy.orm import joinedload
-    from app.schemas.member import UserWithMember
-    
+
     query = db.query(User).options(
         joinedload(User.member_level),
         joinedload(User.member_card)
