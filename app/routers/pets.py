@@ -7,7 +7,7 @@ from app.models.user import User
 from app.crud import pet as crud_pet, pet_health_record as crud_health_record
 from app.utils.dependencies import get_current_active_user
 from app.utils.exceptions import NotFoundError, ForbiddenError
-from app.utils.file_utils import save_upload_file, delete_file
+from app.services.storage_service import storage_service
 
 router = APIRouter(prefix="/pets", tags=["宠物管理"])
 
@@ -136,13 +136,13 @@ async def upload_pet_image(
 
     # 删除旧图片(如果有)
     if pet.image_url:
-        delete_file(pet.image_url)
+        storage_service.delete(pet.image_url)
 
-    # 保存新图片
-    image_path = await save_upload_file(file, pet_id)
+    # 上传新图片
+    image_url = await storage_service.upload(file, pet_id)
 
     # 更新宠物记录
-    pet_update = PetUpdate(image_url=image_path)
+    pet_update = PetUpdate(image_url=image_url)
     pet = crud_pet.update(db, db_obj=pet, obj_in=pet_update)
 
     return pet
@@ -166,7 +166,7 @@ async def delete_pet_image(
 
     # 删除图片文件
     if pet.image_url:
-        delete_file(pet.image_url)
+        storage_service.delete(pet.image_url)
 
     # 更新数据库记录
     pet_update = PetUpdate(image_url=None)

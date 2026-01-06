@@ -34,6 +34,15 @@ class Settings(BaseSettings):
     UPLOAD_DIR: str
     MAX_UPLOAD_SIZE: int
     
+    # 阿里云OSS配置
+    USE_OSS: bool = False
+    OSS_ACCESS_KEY_ID: str = ""
+    OSS_ACCESS_KEY_SECRET: str = ""
+    OSS_BUCKET_NAME: str = ""
+    OSS_ENDPOINT: str = ""
+    OSS_REGION: str = ""
+    OSS_CUSTOM_DOMAIN: str = ""
+    
     # 支付配置
     PAYMENT_MODE: str = "mock"  # mock: 模拟支付（开发测试用）
 

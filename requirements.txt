@@ -41,3 +41,5 @@ fastapi-pagination==0.12.13
 
 # 定时任务调度
 apscheduler==3.10.4
+# 云存储 - 阿里云OSS
+oss2==2.18.4
