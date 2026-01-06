@@ -210,9 +210,16 @@ class OrderCancelService:
             if not order:
                 return CancelResult(success=False, message="订单不存在")
 
-            # 权限检查
-            if order.user_id != user_id:
-                return CancelResult(success=False, message="无权取消此订单")
+            # 权限检查（管理员和员工可以取消任何订单，普通会员只能取消自己的订单）
+            user = db.query(User).filter(User.id == user_id).first()
+            if not user:
+                return CancelResult(success=False, message="用户不存在")
+            
+            # 管理员和员工拥有全部权限
+            if user.role not in ['admin', 'staff']:
+                # 普通会员需验证订单所有权
+                if order.user_id != user_id:
+                    return CancelResult(success=False, message="无权取消此订单")
 
             # 检查订单状态
             if order.status == OrderStatus.CANCELLED.value:
@@ -304,11 +311,18 @@ class OrderCancelService:
             if not appointment:
                 return CancelResult(success=False, message="预约不存在")
 
-            # 权限检查（通过宠物的owner_id）
+            # 权限检查（管理员和员工可以取消任何预约，普通会员只能取消自己宠物的预约）
             from app.models.pet import Pet
-            pet = db.query(Pet).filter(Pet.id == appointment.pet_id).first()
-            if not pet or pet.owner_id != user_id:
-                return CancelResult(success=False, message="无权取消此预约")
+            user = db.query(User).filter(User.id == user_id).first()
+            if not user:
+                return CancelResult(success=False, message="用户不存在")
+            
+            # 管理员和员工拥有全部权限
+            if user.role not in ['admin', 'staff']:
+                # 普通会员需验证是否为宠物主人
+                pet = db.query(Pet).filter(Pet.id == appointment.pet_id).first()
+                if not pet or pet.owner_id != user_id:
+                    return CancelResult(success=False, message="无权取消此预约")
 
             # 检查状态
             if appointment.status == AppointmentStatus.CANCELLED:
@@ -384,11 +398,18 @@ class OrderCancelService:
             if not boarding:
                 return CancelResult(success=False, message="寄养记录不存在")
 
-            # 权限检查（通过宠物的owner_id）
+            # 权限检查（管理员和员工可以取消任何寄养，普通会员只能取消自己宠物的寄养）
             from app.models.pet import Pet
-            pet = db.query(Pet).filter(Pet.id == boarding.pet_id).first()
-            if not pet or pet.owner_id != user_id:
-                return CancelResult(success=False, message="无权取消此寄养")
+            user = db.query(User).filter(User.id == user_id).first()
+            if not user:
+                return CancelResult(success=False, message="用户不存在")
+            
+            # 管理员和员工拥有全部权限
+            if user.role not in ['admin', 'staff']:
+                # 普通会员需验证是否为宠物主人
+                pet = db.query(Pet).filter(Pet.id == boarding.pet_id).first()
+                if not pet or pet.owner_id != user_id:
+                    return CancelResult(success=False, message="无权取消此寄养")
 
             # 检查状态
             if boarding.status == BoardingStatus.CANCELLED:

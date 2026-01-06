@@ -76,3 +76,8 @@ htmlcov/
 
 # Alembic 自动生成的迁移版本 (可选保留)
 # alembic/versions/
+/PetMaster_Formatted_Test_Doc.docx
+/PetMaster_Test_Document.docx
+/doc.py
+/图片上传.py
+/images/

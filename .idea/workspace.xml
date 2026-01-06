@@ -6,11 +6,8 @@
   <component name="ChangeListManager">
     <list default="true" id="3578b8bd-4d39-4159-8331-d4b984d33d66" name="更改" comment="集成recaptchav3,v2">
       <change beforePath="$PROJECT_DIR$/.env" beforeDir="false" afterPath="$PROJECT_DIR$/.env" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/config.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/config.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/routers/auth.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/routers/auth.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/utils/email.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/utils/email.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -141,10 +138,12 @@
     "HTTP 请求.test_main | 9. 获取我的积分.executor": "Run",
     "HTTP 请求.test_main | 健康检查.executor": "Run",
     "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "Python.doc.executor": "Run",
     "Python.init_data.executor": "Run",
     "Python.main.executor": "Run",
     "Python.test_alipay_keys.executor": "Run",
     "Python.test_imports.executor": "Run",
+    "Python.图片上传.executor": "Run",
     "Python.拼接图片.executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
@@ -169,16 +168,12 @@
     ]
   }
 }]]></component>
-  <component name="RunManager" selected="Python.main">
-    <configuration name="test_main | 58. 查询支付状态" type="HttpClient.HttpRequestRunConfigurationType" factoryName="HTTP Request" temporary="true" nameIsGenerated="true" path="$PROJECT_DIR$/test_main.http" executionIdentifier="58. 查询支付状态" index="61" runType="运行单个请求">
-      <method v="2" />
-    </configuration>
-    <configuration name="test_main | 58. 查询支付状态" type="HttpClient.HttpRequestRunConfigurationType" factoryName="HTTP Request" temporary="true" nameIsGenerated="true" path="$PROJECT_DIR$/test_main.http" executionIdentifier="58. 查询支付状态" index="61" runType="运行单个请求">
-      <method v="2" />
-    </configuration>
-    <configuration name="test_main | 59. 获取支付列表" type="HttpClient.HttpRequestRunConfigurationType" factoryName="HTTP Request" temporary="true" nameIsGenerated="true" path="$PROJECT_DIR$/test_main.http" executionIdentifier="59. 获取支付列表" index="62" runType="运行单个请求">
-      <method v="2" />
-    </configuration>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$" />
+    </key>
+  </component>
+  <component name="RunManager" selected="Python.doc">
     <configuration name="拼接图片" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="PetMaster" />
       <option name="ENV_FILES" value="" />
@@ -194,6 +189,52 @@
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
       <option name="SCRIPT_NAME" value="$USER_HOME$/Library/Containers/com.tencent.xinWeChat/Data/Documents/xwechat_files/wxid_wzkzqv88gkat22_7092/msg/file/2025-12/拼接图片.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="图片上传" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="PetMaster" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/图片上传.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="doc" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="PetMaster" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/doc.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -271,29 +312,6 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="test_imports" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <module name="PetMaster" />
-      <option name="ENV_FILES" value="" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/test_imports.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
     <configuration name="PetMaster" type="Python.FastAPI">
       <option name="file" value="$PROJECT_DIR$/main.py" />
       <module name="PetMaster" />
@@ -326,11 +344,11 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.doc" />
+        <item itemvalue="Python.图片上传" />
         <item itemvalue="Python.main" />
         <item itemvalue="Python.拼接图片" />
         <item itemvalue="Python.test_alipay_keys" />
-        <item itemvalue="Python.test_imports" />
-        <item itemvalue="HTTP 请求.test_main | 58. 查询支付状态" />
       </list>
     </recent_temporary>
   </component>
@@ -401,7 +419,10 @@
       <workItem from="1767089448946" duration="276000" />
       <workItem from="1767089755796" duration="73000" />
       <workItem from="1767089915871" duration="1378000" />
-      <workItem from="1767168370575" duration="936000" />
+      <workItem from="1767168370575" duration="3835000" />
+      <workItem from="1767194430688" duration="2567000" />
+      <workItem from="1767342733170" duration="3741000" />
+      <workItem from="1767347062497" duration="27035000" />
     </task>
     <task id="LOCAL-00001" summary="基本完成">
       <option name="closed" value="true" />
@@ -470,10 +491,11 @@
     <option name="REARRANGE_BEFORE_PROJECT_COMMIT" value="true" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/PetMaster_fastapi$main.coverage" NAME="main 覆盖结果" MODIFIED="1767169232946" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/PetMaster_fastapi$main.coverage" NAME="main 覆盖结果" MODIFIED="1767196983997" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/PetMaster$init_data.coverage" NAME="init_data 覆盖结果" MODIFIED="1763475573331" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/PetMaster_fastapi$test_imports.coverage" NAME="test_imports 覆盖结果" MODIFIED="1765700850765" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/PetMaster_fastapi$.coverage" NAME="拼接图片 覆盖结果" MODIFIED="1765863247483" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$USER_HOME$/Library/Containers/com.tencent.xinWeChat/Data/Documents/xwechat_files/wxid_wzkzqv88gkat22_7092/msg/file/2025-12" />
+    <SUITE FILE_PATH="coverage/PetMaster_fastapi$doc.coverage" NAME="doc 覆盖结果" MODIFIED="1767607760725" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/PetMaster_fastapi$.coverage" NAME="图片上传 覆盖结果" MODIFIED="1767543087412" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/PetMaster$main.coverage" NAME="main 覆盖结果" MODIFIED="1763700655111" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/PetMaster_fastapi$test_alipay_keys.coverage" NAME="test_alipay_keys 覆盖结果" MODIFIED="1765702962753" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/diagnostics" />
   </component>
