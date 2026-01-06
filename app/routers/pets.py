@@ -106,7 +106,7 @@ async def delete_pet(
 
     # 删除宠物图片(如果有)
     if pet.image_url:
-        delete_file(pet.image_url)
+        storage_service.delete(pet.image_url)
 
     pet_name = pet.name  # 保存宠物名称用于响应
     crud_pet.delete(db, id=pet_id)
